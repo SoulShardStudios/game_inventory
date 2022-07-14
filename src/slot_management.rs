@@ -1,41 +1,56 @@
-use crate::data_types::{BaseItem, ItemInstance};
+use crate::data_types::{IItem, IItemInstance};
 
-pub fn swap<I: BaseItem, II: ItemInstance<I>>(
+pub fn swap<I: IItem, II: IItemInstance<I>>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>) {
     (other, current)
 }
 
-pub fn combine_stack<I: BaseItem, II: ItemInstance<I>>(
-    mut current: Option<II>,
-    mut other: Option<II>,
-) -> (Option<II>, Option<II>) {
-    if current.is_none() || other.is_none() {
-        return swap(current, other);
+pub fn combine_stack<I: IItem, II: IItemInstance<I> + Copy>(
+    current: Option<II>,
+    other: Option<II>,
+) -> (Option<II>, Option<II>)
+where
+    I: 'static,
+{
+    return match (current, other) {
+        (Some(c), Some(o)) => combine_stack_some(&c, &o),
+        (Some(c), None) => swap(Some(c), None),
+        (None, Some(o)) => swap(None, Some(o)),
+        (None, None) => swap(None, None),
+    };
+}
+
+fn combine_stack_some<I: IItem, II: IItemInstance<I> + Copy>(
+    current: &II,
+    other: &II,
+) -> (Option<II>, Option<II>)
+where
+    I: 'static,
+{
+    if current.get_item().name() != other.get_item().name() {
+        return swap(Some(*current), Some(*other));
     }
-    let u_current = current.as_mut().unwrap();
-    let u_other = other.as_mut().unwrap();
-    if u_current.get_item().name() != u_other.get_item().name() {
-        return swap(current, other);
+    if !current.get_item().is_stackable() {
+        return swap(Some(*current), Some(*other));
     }
-    let item = u_current.get_item();
-    if !item.is_stackable() {
-        return swap(current, other);
-    }
-    let stack_size = item.max_stack_quantity();
-    let current_quant = u_current.get_quantity();
-    let other_quant = u_other.get_quantity();
+    let stack_size = current.get_item().max_stack_quantity();
+    let current_quant = current.get_quantity();
+    let other_quant = other.get_quantity();
     if current_quant >= stack_size || other_quant >= stack_size {
-        return swap(current, other);
+        return swap(Some(*current), Some(*other));
     }
 
     if current_quant + other_quant < stack_size {
-        return (Some(II::new(item, current_quant + other_quant)), None);
+        return (
+            Some(II::new(current.get_item(), current_quant + other_quant)),
+            None,
+        );
     }
     let left_over = current_quant + other_quant - stack_size;
     return (
-        Some(II::new(item, stack_size)),
-        Some(II::new(item, left_over)),
+        Some(II::new(current.get_item(), stack_size)),
+        Some(II::new(current.get_item(), left_over)),
     );
 }
