@@ -11,11 +11,11 @@ pub trait ItemInstance<Item: BaseItem> {
 
 pub trait Slot<'a, I: BaseItem, II: ItemInstance<I>> {
     fn get_item_instance(&self) -> Option<II>;
-    fn set_item_instance(&self, item_instance: Option<II>);
-    fn transfer(&self, item_instance: Option<II>) -> Option<II> {
+    fn set_item_instance(&mut self, item_instance: Option<II>);
+    fn transfer(&mut self, item_instance: Option<II>) -> Option<II> {
         let original = self.get_item_instance();
         self.set_item_instance(item_instance);
-        *original
+        original
     }
 }
 

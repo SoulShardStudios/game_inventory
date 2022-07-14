@@ -20,7 +20,7 @@ impl data_types::BaseItem for Item {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct IItem<'a> {
     pub item: &'a Item,
     pub quantity: u16,
@@ -38,15 +38,15 @@ impl<'a> data_types::ItemInstance<Item> for IItem<'a> {
 
 #[derive(Debug)]
 pub struct BasicSlot<'a> {
-    item_instance: Option<IItem<'a>>,
+    pub item_instance: Option<IItem<'a>>,
 }
 
 impl<'a> data_types::Slot<'a, Item, IItem<'a>> for BasicSlot<'a> {
     fn get_item_instance(&self) -> Option<IItem<'a>> {
-        &self.item_instance
+        self.item_instance
     }
 
-    fn set_item_instance(&self, item_instance: Option<IItem<'a>>) {
+    fn set_item_instance(&mut self, item_instance: Option<IItem<'a>>) {
         self.item_instance = item_instance
     }
 }
