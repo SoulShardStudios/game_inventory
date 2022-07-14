@@ -17,6 +17,7 @@ pub trait Slot<'a, I: BaseItem, II: ItemInstance<I>> {
         self.set_item_instance(item_instance);
         original
     }
+    fn set_change_callback(&mut self, callback: Option<fn(Option<II>)>);
 }
 
 pub trait Inventory<'a, I: BaseItem, II: ItemInstance<I>, S: Slot<'a, I, II>> {

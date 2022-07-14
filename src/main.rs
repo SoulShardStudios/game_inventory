@@ -13,12 +13,17 @@ fn main() {
         max_stack_amount: 100,
     };
 
+    fn on_change(iitem: Option<IItem>){
+        println!("change callback:{:#?}", iitem)
+    }
+
     let mut inv = BasicInventory {
         slots: vec![BasicSlot {
             item_instance: Some(IItem {
                 item: &test_item,
                 quantity: 10,
             }),
+            on_item_changed: Some(on_change)
         }],
     };
 

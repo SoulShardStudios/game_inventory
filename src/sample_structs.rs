@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::data_types;
 
 #[derive(Debug)]
@@ -36,9 +38,17 @@ impl<'a> data_types::ItemInstance<Item> for IItem<'a> {
     }
 }
 
-#[derive(Debug)]
 pub struct BasicSlot<'a> {
     pub item_instance: Option<IItem<'a>>,
+    pub on_item_changed: Option<fn(Option<IItem<'a>>)>,
+}
+
+impl<'a> Debug for BasicSlot<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BasicSlot")
+            .field("item_instance", &self.item_instance)
+            .finish()
+    }
 }
 
 impl<'a> data_types::Slot<'a, Item, IItem<'a>> for BasicSlot<'a> {
@@ -47,7 +57,17 @@ impl<'a> data_types::Slot<'a, Item, IItem<'a>> for BasicSlot<'a> {
     }
 
     fn set_item_instance(&mut self, item_instance: Option<IItem<'a>>) {
+        match self.on_item_changed {
+            None => {}
+            Some(x) => {
+                (x)(item_instance);
+            }
+        }
         self.item_instance = item_instance
+    }
+
+    fn set_change_callback(&mut self, callback: Option<fn(Option<IItem<'a>>)>) {
+        self.on_item_changed = callback
     }
 }
 
