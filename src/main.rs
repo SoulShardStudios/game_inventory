@@ -1,5 +1,6 @@
 mod data_types;
 mod sample_structs;
+mod slot_management;
 use crate::data_types::Inventory;
 use crate::data_types::Slot;
 use crate::sample_structs::BasicInventory;
@@ -10,10 +11,10 @@ use crate::sample_structs::Item;
 fn main() {
     let test_item = Item {
         name: "brocoli".to_string(),
-        max_stack_amount: 100,
+        max_stack_quantity: 100,
     };
 
-    fn on_change(iitem: Option<IItem>){
+    fn on_change(iitem: Option<IItem>) {
         println!("change callback:{:#?}", iitem)
     }
 
@@ -23,7 +24,7 @@ fn main() {
                 item: &test_item,
                 quantity: 10,
             }),
-            on_item_changed: Some(on_change)
+            on_item_changed: Some(on_change),
         }],
     };
 

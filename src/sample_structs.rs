@@ -5,7 +5,7 @@ use crate::data_types;
 #[derive(Debug)]
 pub struct Item {
     pub name: String,
-    pub max_stack_amount: u16,
+    pub max_stack_quantity: u16,
 }
 
 impl data_types::BaseItem for Item {
@@ -13,8 +13,8 @@ impl data_types::BaseItem for Item {
         true
     }
 
-    fn max_stack_amount(&self) -> u16 {
-        self.max_stack_amount
+    fn max_stack_quantity(&self) -> u16 {
+        self.max_stack_quantity
     }
 
     fn name(&self) -> &String {
