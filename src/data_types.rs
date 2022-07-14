@@ -9,8 +9,18 @@ pub trait ItemInstance<Item: BaseItem> {
     fn get_item(&self) -> &Item;
 }
 
-pub trait Inventory<'a, I: BaseItem, II: ItemInstance<I>> {
+pub trait Slot<'a, I: BaseItem, II: ItemInstance<I>> {
+    fn get_item_instance(&self) -> Option<II>;
+    fn set_item_instance(&self, item_instance: Option<II>);
+    fn transfer(&self, item_instance: Option<II>) -> Option<II> {
+        let original = self.get_item_instance();
+        self.set_item_instance(item_instance);
+        *original
+    }
+}
+
+pub trait Inventory<'a, I: BaseItem, II: ItemInstance<I>, S: Slot<'a, I, II>> {
     fn size(&self) -> usize;
-    fn get_items(&self) -> &[Option<II>];
-    fn get_items_mut(&mut self) -> &mut [Option<II>];
+    fn get_items(&self) -> &[S];
+    fn get_items_mut(&mut self) -> &mut [S];
 }

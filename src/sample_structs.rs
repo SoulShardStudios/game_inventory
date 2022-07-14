@@ -37,20 +37,35 @@ impl<'a> data_types::ItemInstance<Item> for IItem<'a> {
 }
 
 #[derive(Debug)]
-pub struct BasicInventory<'a> {
-    pub items: Vec<Option<IItem<'a>>>,
+pub struct BasicSlot<'a> {
+    item_instance: Option<IItem<'a>>,
 }
 
-impl<'a> data_types::Inventory<'a, Item, IItem<'a>> for BasicInventory<'a> {
+impl<'a> data_types::Slot<'a, Item, IItem<'a>> for BasicSlot<'a> {
+    fn get_item_instance(&self) -> Option<IItem<'a>> {
+        &self.item_instance
+    }
+
+    fn set_item_instance(&self, item_instance: Option<IItem<'a>>) {
+        self.item_instance = item_instance
+    }
+}
+
+#[derive(Debug)]
+pub struct BasicInventory<'a> {
+    pub slots: Vec<BasicSlot<'a>>,
+}
+
+impl<'a> data_types::Inventory<'a, Item, IItem<'a>, BasicSlot<'a>> for BasicInventory<'a> {
     fn size(&self) -> usize {
-        self.items.capacity()
+        self.slots.capacity()
     }
 
-    fn get_items(&self) -> &[Option<IItem<'a>>] {
-        &self.items
+    fn get_items(&self) -> &[BasicSlot<'a>] {
+        &self.slots
     }
 
-    fn get_items_mut(&mut self) -> &mut [Option<IItem<'a>>] {
-        &mut self.items
+    fn get_items_mut(&mut self) -> &mut [BasicSlot<'a>] {
+        &mut self.slots
     }
 }
