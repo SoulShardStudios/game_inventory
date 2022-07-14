@@ -1,5 +1,7 @@
 mod data_types;
 mod sample_structs;
+use crate::data_types::Inventory;
+use crate::data_types::Slot;
 use crate::sample_structs::BasicInventory;
 use crate::sample_structs::BasicSlot;
 use crate::sample_structs::IItem;
@@ -11,7 +13,7 @@ fn main() {
         max_stack_amount: 100,
     };
 
-    let inv = BasicInventory {
+    let mut inv = BasicInventory {
         slots: vec![BasicSlot {
             item_instance: Some(IItem {
                 item: &test_item,
@@ -19,6 +21,13 @@ fn main() {
             }),
         }],
     };
+
+    let inst2 = inv.get_slots_mut()[0].transfer(Some(IItem {
+        item: &test_item,
+        quantity: 102,
+    }));
+
+    println!("{:#?}", inst2);
 
     println!("{:#?}", test_item);
 

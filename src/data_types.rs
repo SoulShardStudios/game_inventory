@@ -21,6 +21,6 @@ pub trait Slot<'a, I: BaseItem, II: ItemInstance<I>> {
 
 pub trait Inventory<'a, I: BaseItem, II: ItemInstance<I>, S: Slot<'a, I, II>> {
     fn size(&self) -> usize;
-    fn get_items(&self) -> &[S];
-    fn get_items_mut(&mut self) -> &mut [S];
+    fn get_slots(&self) -> &[S];
+    fn get_slots_mut(&mut self) -> &mut [S];
 }

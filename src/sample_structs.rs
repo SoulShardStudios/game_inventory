@@ -61,11 +61,11 @@ impl<'a> data_types::Inventory<'a, Item, IItem<'a>, BasicSlot<'a>> for BasicInve
         self.slots.capacity()
     }
 
-    fn get_items(&self) -> &[BasicSlot<'a>] {
+    fn get_slots(&self) -> &[BasicSlot<'a>] {
         &self.slots
     }
 
-    fn get_items_mut(&mut self) -> &mut [BasicSlot<'a>] {
+    fn get_slots_mut(&mut self) -> &mut [BasicSlot<'a>] {
         &mut self.slots
     }
 }
