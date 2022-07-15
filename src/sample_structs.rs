@@ -67,7 +67,10 @@ where
     }
 }
 
-impl<'a, II: traits::IItemInstance<'a> + Sized> traits::ISlot<'a, II> for Slot<'a, II> {
+impl<'a, II> traits::ISlot<'a, II> for Slot<'a, II>
+where
+    II: traits::IItemInstance<'a> + Sized + Copy,
+{
     fn get_item_instance(&self) -> Option<II> {
         match &self.item_instance {
             Some(i) => Some(II::new(i.item(), i.quant())),
@@ -79,16 +82,10 @@ impl<'a, II: traits::IItemInstance<'a> + Sized> traits::ISlot<'a, II> for Slot<'
         match self.on_item_changed {
             None => {}
             Some(x) => {
-                (x)(match &item_instance {
-                    Some(i) => Some(II::new(i.item(), i.quant())),
-                    None => None,
-                });
+                (x)(*item_instance);
             }
         }
-        self.item_instance = match &item_instance {
-            Some(i) => Some(II::new(i.item(), i.quant())),
-            None => None,
-        }
+        self.item_instance = *item_instance
     }
 
     fn set_change_callback(&mut self, callback: &'a Option<fn(Option<II>)>) {
