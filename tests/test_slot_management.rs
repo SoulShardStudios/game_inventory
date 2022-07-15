@@ -100,7 +100,7 @@ mod combine {
     use super::*;
 
     #[test]
-    fn test_combine_simple() {
+    fn test_simple() {
         let res = combine_stack(
             Some(ItemInstance {
                 item: &TORCH,
@@ -117,7 +117,7 @@ mod combine {
     }
 
     #[test]
-    fn test_combine_overflow() {
+    fn test_overflow() {
         let res = combine_stack(
             Some(ItemInstance {
                 item: &TORCH,
@@ -135,7 +135,7 @@ mod combine {
     }
 
     #[test]
-    fn test_combine_edge_cases() {
+    fn test_edge_cases() {
         assert_was_swapped(
             Some(ItemInstance {
                 item: &TORCH,
@@ -163,7 +163,7 @@ mod combine {
 mod split {
     use super::*;
     #[test]
-    fn test_split_simple() {
+    fn test_simple() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -182,7 +182,7 @@ mod split {
     }
 
     #[test]
-    fn test_split_uneven() {
+    fn test_uneven() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -201,7 +201,7 @@ mod split {
     }
 
     #[test]
-    fn test_split_none() {
+    fn test_none() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -217,7 +217,7 @@ mod split {
     }
 
     #[test]
-    fn test_split_edge_cases() {
+    fn test_edge_cases() {
         assert_was_swapped(
             None,
             Some(ItemInstance {
@@ -237,7 +237,7 @@ mod single {
     use super::*;
 
     #[test]
-    fn test_single_simple() {
+    fn test_simple() {
         let res = single_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -287,7 +287,7 @@ mod single {
         assert!(res.1.is_none());
     }
     #[test]
-    fn test_single_edge_cases() {
+    fn test_edge_cases() {
         assert_was_swapped(
             None,
             Some(ItemInstance {
