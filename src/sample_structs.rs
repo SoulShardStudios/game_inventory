@@ -9,7 +9,7 @@ pub struct Item<'a> {
 }
 
 impl<'a> data_types::IItem for Item<'a> {
-    fn is_stackable(&self) -> bool {
+    fn stackable(&self) -> bool {
         true
     }
 
@@ -29,11 +29,11 @@ pub struct ItemInstance<'a> {
 }
 
 impl<'a> data_types::IItemInstance<'a, Item<'a>> for ItemInstance<'a> {
-    fn get_quantity(&self) -> u16 {
+    fn quant(&self) -> u16 {
         self.quantity
     }
 
-    fn get_item(&self) -> &'a Item<'a> {
+    fn item(&self) -> &'a Item<'a> {
         self.item
     }
 

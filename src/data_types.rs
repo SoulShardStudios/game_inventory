@@ -1,14 +1,14 @@
 use crate::slot_management::swap;
 
 pub trait IItem {
-    fn is_stackable(&self) -> bool;
+    fn stackable(&self) -> bool;
     fn max_stack_quantity(&self) -> u16;
     fn name(&self) -> &str;
 }
 
 pub trait IItemInstance<'a, Item: IItem> {
-    fn get_quantity(&self) -> u16;
-    fn get_item(&self) -> &'a Item;
+    fn quant(&self) -> u16;
+    fn item(&self) -> &'a Item;
     fn new(item: &'a Item, quantity: u16) -> Self;
 }
 
