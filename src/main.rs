@@ -1,4 +1,5 @@
 mod data_types;
+mod inventory_management;
 mod sample_structs;
 mod slot_management;
 use crate::data_types::IInventory;
@@ -15,7 +16,7 @@ fn main() {
 
     let test_item: Item = Item {
         name: "brocoli",
-        max_stack_quantity: 100,
+        max_quantity: 100,
     };
 
     let mut inv = Inventory {
@@ -28,7 +29,7 @@ fn main() {
         }],
     };
 
-    let inst2 = inv.get_slots_mut()[0].transfer(Some(ItemInstance {
+    let inst2 = inv.slots_mut()[0].transfer(Some(ItemInstance {
         item: &test_item,
         quantity: 102,
     }));

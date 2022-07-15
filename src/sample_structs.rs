@@ -5,7 +5,7 @@ use crate::data_types;
 #[derive(Debug)]
 pub struct Item<'a> {
     pub name: &'a str,
-    pub max_stack_quantity: u16,
+    pub max_quantity: u16,
 }
 
 impl<'a> data_types::IItem for Item<'a> {
@@ -13,8 +13,8 @@ impl<'a> data_types::IItem for Item<'a> {
         true
     }
 
-    fn max_stack_quantity(&self) -> u16 {
-        self.max_stack_quantity
+    fn max_quant(&self) -> u16 {
+        self.max_quantity
     }
 
     fn name(&self) -> &'a str {
@@ -88,11 +88,11 @@ impl<'a> data_types::IInventory<'a, Item<'a>, ItemInstance<'a>, Slot<'a>> for In
         self.slots.capacity()
     }
 
-    fn get_slots(&self) -> &[Slot<'a>] {
+    fn slots(&self) -> &[Slot<'a>] {
         &self.slots
     }
 
-    fn get_slots_mut(&mut self) -> &mut [Slot<'a>] {
+    fn slots_mut(&mut self) -> &mut [Slot<'a>] {
         &mut self.slots
     }
 }

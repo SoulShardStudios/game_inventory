@@ -2,7 +2,7 @@ use crate::slot_management::swap;
 
 pub trait IItem {
     fn stackable(&self) -> bool;
-    fn max_stack_quantity(&self) -> u16;
+    fn max_quant(&self) -> u16;
     fn name(&self) -> &str;
 }
 
@@ -26,6 +26,6 @@ pub trait ISlot<'a, I: IItem, II: IItemInstance<'a, I>> {
 
 pub trait IInventory<'a, I: IItem, II: IItemInstance<'a, I>, S: ISlot<'a, I, II>> {
     fn size(&self) -> usize;
-    fn get_slots(&self) -> &[S];
-    fn get_slots_mut(&mut self) -> &mut [S];
+    fn slots(&self) -> &[S];
+    fn slots_mut(&mut self) -> &mut [S];
 }

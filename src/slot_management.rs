@@ -23,7 +23,7 @@ where
             if !c.item().stackable() {
                 return swap(Some(c), Some(o));
             }
-            let stack_size = c.item().max_stack_quantity();
+            let stack_size = c.item().max_quant();
             let current_quant = c.quant();
             let other_quant = o.quant();
             if current_quant >= stack_size || other_quant >= stack_size {
@@ -92,7 +92,7 @@ where
                     if c.item().name() != o.item().name() {
                         return swap(current, other);
                     }
-                    if c.quant() == c.item().max_stack_quantity() {
+                    if c.quant() == c.item().max_quant() {
                         return swap(current, other);
                     }
                     if o.quant() < 2 {
