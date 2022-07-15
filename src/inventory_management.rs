@@ -1,22 +1,25 @@
-use crate::{slot_management::combine_stack, traits};
+use crate::{combine_stack, traits};
 
-fn wrap_combine_for_iter<'a, II, S>(slot: &mut &'a mut S, other: &mut Option<II>)
-where
-    II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II>,
-{
-    let res = combine_stack(slot.item_instance(), *other);
-    slot.set_item_instance(&res.0);
-    *other = res.1;
-}
-
-pub fn add_to_inventory<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> Option<II>
+pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: Option<II>) -> bool
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
     S: traits::ISlot<'a, II> + 'a,
-    Inv: traits::IInventory<'a, II, S>,
 {
-    if inventory.size() == 0 {
+    match other {
+        Some(o) => inventory.iter().any(|s| match s.item_instance() {
+            Some(i) => i.item().name() == o.item().name(),
+            None => false,
+        }),
+        None => false,
+    }
+}
+
+pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: Option<II>) -> Option<II>
+where
+    II: traits::IItemInstance<'a> + Copy + 'a,
+    S: traits::ISlot<'a, II> + 'a,
+{
+    if inventory.capacity() == 0 {
         return other;
     }
     match other {
@@ -25,16 +28,13 @@ where
                 if o.item().max_quant() == o.quant() {
                     return Some(o);
                 }
-
-                let mut remaining = Some(o);
-                inventory
-                    .slots_mut()
-                    .iter_mut()
-                    .for_each(|slot| wrap_combine_for_iter(slot, &mut remaining));
-                return remaining;
+                inventory.iter_mut().fold(Some(o), |current, slot| {
+                    let res = combine_stack(slot.item_instance(), current);
+                    slot.set_item_instance(&res.0);
+                    return res.1;
+                });
             }
             match inventory
-                .slots_mut()
                 .iter_mut()
                 .find(|slot| slot.item_instance().is_none())
             {
@@ -46,20 +46,5 @@ where
             }
         }
         None => None,
-    }
-}
-
-pub fn inventory_contains_item<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> bool
-where
-    II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II> + 'a,
-    Inv: traits::IInventory<'a, II, S> + 'a,
-{
-    match other {
-        Some(o) => inventory.slots().iter().any(|s| match s.item_instance() {
-            Some(i) => i.item().name() == o.item().name(),
-            None => false,
-        }),
-        None => false,
     }
 }

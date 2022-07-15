@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::traits;
+use crate::{combine_stack, traits};
 use std::marker::PhantomData;
 
 #[derive(Debug)]
@@ -90,31 +90,5 @@ where
 
     fn set_change_callback(&mut self, callback: &'a Option<fn(Option<II>)>) {
         self.on_item_changed = callback
-    }
-}
-
-#[derive(Debug)]
-pub struct Inventory<'a, II, S>
-where
-    II: traits::IItemInstance<'a>,
-    S: traits::ISlot<'a, II>,
-{
-    pub slots: Vec<&'a mut S>,
-    _phantom: PhantomData<II>,
-}
-
-impl<'a, II: traits::IItemInstance<'a>, S: traits::ISlot<'a, II>> traits::IInventory<'a, II, S>
-    for Inventory<'a, II, S>
-{
-    fn size(&self) -> usize {
-        self.slots.capacity()
-    }
-
-    fn slots(&self) -> &Vec<&'a mut S> {
-        &self.slots
-    }
-
-    fn slots_mut(&mut self) -> &mut Vec<&'a mut S> {
-        &mut self.slots
     }
 }

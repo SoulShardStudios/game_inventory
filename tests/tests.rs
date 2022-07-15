@@ -1,7 +1,11 @@
+use std::marker::PhantomData;
+
 use inventory_rs::{
     combine_stack, half_stack_split, single_stack_split, swap, IItem, IItemInstance, Item,
-    ItemInstance,
+    ItemInstance, Slot,
 };
+
+pub fn test_add_item_to_inventory() {}
 
 fn assert_was_swapped<'a>(
     _0: Option<ItemInstance<'a>>,
@@ -31,37 +35,37 @@ fn assert_was_swapped<'a>(
     }
 }
 
-const TORCH: Item = Item {
+pub const TORCH: Item = Item {
     name: "torch",
     max_quantity: 100,
 };
 
-const JUNK: Item = Item {
+pub const JUNK: Item = Item {
     name: "junk",
     max_quantity: 100,
 };
 
-const SWORD: Item = Item {
+pub const SWORD: Item = Item {
     name: "sword",
     max_quantity: 0,
 };
 
-const SWORD_INST: Option<ItemInstance> = Some(ItemInstance {
+pub const SWORD_INST: Option<ItemInstance> = Some(ItemInstance {
     item: &SWORD,
     quantity: 0,
 });
 
-const JUNK_INST: Option<ItemInstance> = Some(ItemInstance {
+pub const JUNK_INST: Option<ItemInstance> = Some(ItemInstance {
     item: &JUNK,
     quantity: 91,
 });
 
-const TORCH_INST: Option<ItemInstance> = Some(ItemInstance {
+pub const TORCH_INST: Option<ItemInstance> = Some(ItemInstance {
     item: &TORCH,
     quantity: 23,
 });
 
-const TORCH_FULL_STACK_INST: Option<ItemInstance> = Some(ItemInstance {
+pub const TORCH_FULL_STACK_INST: Option<ItemInstance> = Some(ItemInstance {
     item: &TORCH,
     quantity: 100,
 });
@@ -100,7 +104,7 @@ mod combine {
     use super::*;
 
     #[test]
-    fn test_simple() {
+    fn simple() {
         let res = combine_stack(
             Some(ItemInstance {
                 item: &TORCH,
@@ -117,7 +121,7 @@ mod combine {
     }
 
     #[test]
-    fn test_overflow() {
+    fn overflow() {
         let res = combine_stack(
             Some(ItemInstance {
                 item: &TORCH,
@@ -135,7 +139,7 @@ mod combine {
     }
 
     #[test]
-    fn test_edge_cases() {
+    fn edge_cases() {
         assert_was_swapped(
             Some(ItemInstance {
                 item: &TORCH,
@@ -163,7 +167,7 @@ mod combine {
 mod split {
     use super::*;
     #[test]
-    fn test_simple() {
+    fn simple() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -182,7 +186,7 @@ mod split {
     }
 
     #[test]
-    fn test_uneven() {
+    fn uneven() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -201,7 +205,7 @@ mod split {
     }
 
     #[test]
-    fn test_none() {
+    fn none() {
         let res = half_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -217,7 +221,7 @@ mod split {
     }
 
     #[test]
-    fn test_edge_cases() {
+    fn edge_cases() {
         assert_was_swapped(
             None,
             Some(ItemInstance {
@@ -237,7 +241,7 @@ mod single {
     use super::*;
 
     #[test]
-    fn test_simple() {
+    fn simple() {
         let res = single_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -255,7 +259,7 @@ mod single {
         assert!(res.1.unwrap().quant() == 2);
     }
     #[test]
-    fn test_current_empty() {
+    fn current_empty() {
         let res = single_stack_split(
             None,
             Some(ItemInstance {
@@ -270,7 +274,7 @@ mod single {
         assert!(res.1.unwrap().quant() == 2);
     }
     #[test]
-    fn test_remove_at_end() {
+    fn remove_at_end() {
         let res = single_stack_split(
             Some(ItemInstance {
                 item: &TORCH,
@@ -287,7 +291,7 @@ mod single {
         assert!(res.1.is_none());
     }
     #[test]
-    fn test_edge_cases() {
+    fn edge_cases() {
         assert_was_swapped(
             None,
             Some(ItemInstance {
@@ -309,4 +313,38 @@ mod single {
         assert_was_swapped(TORCH_INST, JUNK_INST, combine_stack);
         assert_was_swapped(JUNK_INST, TORCH_INST, combine_stack);
     }
+}
+mod add_to {
+    use inventory_rs::add_to_inventory;
+
+    use super::*;
+
+    #[test]
+    fn full() {
+        let mut full = vec![
+            Slot {
+                item_instance: TORCH_FULL_STACK_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: TORCH_FULL_STACK_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: SWORD_INST,
+                on_item_changed: &None,
+            },
+        ];
+
+        let insts_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
+        insts_to_test.iter().for_each(|inst| {
+            assert!(
+                add_to_inventory(&mut full, *inst).unwrap().item().name()
+                    == inst.unwrap().item().name()
+            )
+        });
+    }
+}
+mod contains {
+    use super::*;
 }

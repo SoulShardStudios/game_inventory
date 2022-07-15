@@ -24,9 +24,3 @@ pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
 
     fn set_change_callback(&mut self, callback: &'a Option<fn(Option<II>)>);
 }
-
-pub trait IInventory<'a, II: IItemInstance<'a>, S: ISlot<'a, II>> {
-    fn size(&self) -> usize;
-    fn slots(&self) -> &Vec<&'a mut S>;
-    fn slots_mut(&mut self) -> &mut Vec<&'a mut S>;
-}
