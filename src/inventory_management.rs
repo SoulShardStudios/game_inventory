@@ -7,11 +7,22 @@ where
 {
     match other {
         Some(o) => inventory.iter().any(|s| match s.item_instance() {
-            Some(i) => i.item().name() == o.item().name(),
+            Some(i) => i.item().name() == o.item().name() && i.quant() == o.quant(),
             None => false,
         }),
         None => false,
     }
+}
+
+pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
+where
+    II: traits::IItemInstance<'a> + Copy + 'a,
+    S: traits::ISlot<'a, II> + 'a,
+{
+    inventory.iter().any(|s| match s.item_instance() {
+        Some(i) => i.item().name() == name,
+        None => false,
+    })
 }
 
 pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: Option<II>) -> Option<II>

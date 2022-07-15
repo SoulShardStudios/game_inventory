@@ -1,6 +1,6 @@
 use inventory_rs::{
-    combine_stack, half_stack_split, single_stack_split, swap, IItem, IItemInstance, ISlot, Item,
-    ItemInstance, Slot,
+    combine_stack, half_stack_split, inventory_contains_item, inventory_contains_item_type,
+    single_stack_split, swap, IItem, IItemInstance, ISlot, Item, ItemInstance, Slot,
 };
 
 pub fn test_add_item_to_inventory() {}
@@ -391,4 +391,44 @@ mod add_to {
 }
 mod contains {
     use super::*;
+    #[test]
+    fn contains_type() {
+        let full = vec![
+            Slot {
+                item_instance: TORCH_FULL_STACK_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: SWORD_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: None,
+                on_item_changed: &None,
+            },
+        ];
+        assert!(inventory_contains_item_type(&full, TORCH.name()));
+        assert!(inventory_contains_item_type(&full, SWORD.name()));
+        assert!(!inventory_contains_item_type(&full, JUNK.name()));
+    }
+    #[test]
+    fn contains_item() {
+        let full = vec![
+            Slot {
+                item_instance: TORCH_FULL_STACK_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: SWORD_INST,
+                on_item_changed: &None,
+            },
+            Slot {
+                item_instance: None,
+                on_item_changed: &None,
+            },
+        ];
+        assert!(inventory_contains_item(&full, TORCH_FULL_STACK_INST));
+        assert!(inventory_contains_item(&full, SWORD_INST));
+        assert!(!inventory_contains_item(&full, TORCH_INST));
+    }
 }
