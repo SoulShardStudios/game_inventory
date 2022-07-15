@@ -8,4 +8,9 @@ A fully generic, expandable inventory system built in rust.
  - Tests are required for sorting out bugs
  - Built with rust to include of the robust guarantees rust ensures
  
-Documentation coming soon.
+## Overall architecture and data types
+
+`trait IItem` Is for static item data. say you have a sword, between different swords, they have the same icon, the same base damage, e.t.c. that gets stored in static item data.
+`trait IItemInstance` Is for instance item data. If there are two stacks of an item, you need to store the quantity of those items. That gets stored in instance data. 
+`trait ISlot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.).
+`trait IInventory` Manages a collection of item instances. good for applying operations over a whole collection of slots, or just simply storing slots together.  
