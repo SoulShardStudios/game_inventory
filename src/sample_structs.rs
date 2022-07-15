@@ -13,7 +13,7 @@ impl<'a> traits::IDebugItem for Item<'a> {}
 
 impl<'a> traits::IItem for Item<'a> {
     fn stackable(&self) -> bool {
-        true
+        self.max_quantity > 1
     }
 
     fn max_quant(&self) -> u16 {
@@ -71,7 +71,7 @@ impl<'a, II> traits::ISlot<'a, II> for Slot<'a, II>
 where
     II: traits::IItemInstance<'a> + Sized + Copy,
 {
-    fn get_item_instance(&self) -> Option<II> {
+    fn item_instance(&self) -> Option<II> {
         match &self.item_instance {
             Some(i) => Some(II::new(i.item(), i.quant())),
             None => None,

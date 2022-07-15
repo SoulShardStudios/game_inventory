@@ -46,22 +46,33 @@ where
     II: traits::IItemInstance<'a> + Copy + 'a,
 {
     return match current {
-        Some(c) => match other {
-            Some(_o) => swap(current, other),
-            None => {
-                if !c.item().stackable() {
-                    return swap(current, other);
-                }
-                if c.quant() < 2 {
-                    return swap(current, other);
-                }
-                let half_stack = c.quant() / 2;
-                return (
-                    Some(II::new(c.item(), half_stack)),
-                    Some(II::new(c.item(), half_stack + (c.quant() % 2))),
-                );
+        Some(c) => {
+            if !c.item().stackable() {
+                return swap(current, other);
             }
-        },
+            if match other {
+                Some(o) => c.item().name() != o.item().name(),
+                None => false,
+            } {
+                return swap(current, other);
+            }
+            if c.quant() < 2 {
+                return swap(current, other);
+            }
+            let other_quant = match other {
+                Some(o) => o.quant(),
+                None => 0,
+            };
+
+            let half_stack = c.quant() / 2;
+            return (
+                Some(II::new(c.item(), half_stack)),
+                Some(II::new(
+                    c.item(),
+                    other_quant + half_stack + (c.quant() % 2),
+                )),
+            );
+        }
         None => swap(current, other),
     };
 }

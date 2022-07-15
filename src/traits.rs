@@ -14,10 +14,10 @@ pub trait IItemInstance<'a> {
 }
 
 pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
-    fn get_item_instance(&self) -> Option<II>;
+    fn item_instance(&self) -> Option<II>;
     fn set_item_instance(&mut self, item_instance: &Option<II>);
     fn transfer(&mut self, item_instance: Option<II>) -> Option<II> {
-        let res = swap(self.get_item_instance(), item_instance);
+        let res = swap(self.item_instance(), item_instance);
         self.set_item_instance(&res.0);
         res.1
     }

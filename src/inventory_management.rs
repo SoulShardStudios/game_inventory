@@ -5,7 +5,7 @@ where
     II: traits::IItemInstance<'a> + Copy + 'a,
     S: traits::ISlot<'a, II>,
 {
-    let res = combine_stack(slot.get_item_instance(), *other);
+    let res = combine_stack(slot.item_instance(), *other);
     slot.set_item_instance(&res.0);
     *other = res.1;
 }
@@ -36,7 +36,7 @@ where
             match inventory
                 .slots_mut()
                 .iter_mut()
-                .find(|slot| slot.get_item_instance().is_none())
+                .find(|slot| slot.item_instance().is_none())
             {
                 Some(s) => {
                     s.set_item_instance(&Some(o));
@@ -56,13 +56,10 @@ where
     Inv: traits::IInventory<'a, II, S> + 'a,
 {
     match other {
-        Some(o) => inventory
-            .slots()
-            .iter()
-            .any(|s| match s.get_item_instance() {
-                Some(i) => i.item().name() == o.item().name(),
-                None => false,
-            }),
+        Some(o) => inventory.slots().iter().any(|s| match s.item_instance() {
+            Some(i) => i.item().name() == o.item().name(),
+            None => false,
+        }),
         None => false,
     }
 }
