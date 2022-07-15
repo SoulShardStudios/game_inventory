@@ -20,16 +20,14 @@ where
                 return swap(Some(c), Some(o));
             }
             let stack_size = c.item().max_quant();
-            let current_quant = c.quant();
-            let other_quant = o.quant();
-            if current_quant >= stack_size || other_quant >= stack_size {
+            if c.quant() >= stack_size || o.quant() >= stack_size {
                 return swap(Some(c), Some(o));
             }
-
-            if current_quant + other_quant < stack_size {
-                return (Some(II::new(c.item(), current_quant + other_quant)), None);
+            let combined = c.quant() + o.quant();
+            if combined < stack_size {
+                return (Some(II::new(c.item(), combined)), None);
             }
-            let left_over = current_quant + other_quant - stack_size;
+            let left_over = combined - stack_size;
             return (
                 Some(II::new(c.item(), stack_size)),
                 Some(II::new(c.item(), left_over)),

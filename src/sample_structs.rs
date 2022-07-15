@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 
-use crate::{combine_stack, traits};
-use std::marker::PhantomData;
+use crate::traits;
 
 #[derive(Debug)]
 pub struct Item<'a> {

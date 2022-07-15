@@ -28,11 +28,25 @@ where
                 if o.item().max_quant() == o.quant() {
                     return Some(o);
                 }
-                inventory.iter_mut().fold(Some(o), |current, slot| {
-                    let res = combine_stack(slot.item_instance(), current);
-                    slot.set_item_instance(&res.0);
-                    return res.1;
-                });
+                inventory
+                    .iter_mut()
+                    .fold(Some(o), |current, slot| match current {
+                        Some(c) => match slot.item_instance() {
+                            Some(s) => {
+                                if s.item().name() != c.item().name() {
+                                    return current;
+                                }
+                                if s.quant() == s.item().max_quant() {
+                                    return current;
+                                }
+                                let res = combine_stack(slot.item_instance(), Some(c));
+                                slot.set_item_instance(&res.0);
+                                return res.1;
+                            }
+                            None => None,
+                        },
+                        None => None,
+                    });
             }
             match inventory
                 .iter_mut()
