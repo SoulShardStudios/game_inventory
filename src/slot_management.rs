@@ -1,18 +1,19 @@
 use crate::data_types::{IItem, IItemInstance};
 
-pub fn swap<I: IItem, II: IItemInstance<I>>(
+pub fn swap<'a, I: IItem, II: IItemInstance<'a, I>>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>) {
     (other, current)
 }
 
-pub fn combine_stack<I: IItem, II: IItemInstance<I> + Copy>(
+pub fn combine_stack<'a, I: IItem, II: IItemInstance<'a, I> + Copy>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>)
 where
-    I: 'static,
+    I: 'a,
+    II: 'a,
 {
     return match (current, other) {
         (Some(c), Some(o)) => combine_stack_some(&c, &o),
@@ -22,12 +23,13 @@ where
     };
 }
 
-fn combine_stack_some<I: IItem, II: IItemInstance<I> + Copy>(
+fn combine_stack_some<'a, I: IItem, II: IItemInstance<'a, I> + Copy>(
     current: &II,
     other: &II,
 ) -> (Option<II>, Option<II>)
 where
-    I: 'static,
+    I: 'a,
+    II: 'a,
 {
     if current.get_item().name() != other.get_item().name() {
         return swap(Some(*current), Some(*other));

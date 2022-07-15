@@ -3,12 +3,12 @@ use std::fmt::Debug;
 use crate::data_types;
 
 #[derive(Debug)]
-pub struct Item {
-    pub name: &'static str,
+pub struct Item<'a> {
+    pub name: &'a str,
     pub max_stack_quantity: u16,
 }
 
-impl data_types::IItem for Item {
+impl<'a> data_types::IItem for Item<'a> {
     fn is_stackable(&self) -> bool {
         true
     }
@@ -17,26 +17,27 @@ impl data_types::IItem for Item {
         self.max_stack_quantity
     }
 
-    fn name(&self) -> &'static str {
-        &self.name
+    fn name(&self) -> &'a str {
+        self.name
     }
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct ItemInstance {
-    pub item: &'static Item,
+pub struct ItemInstance<'a> {
+    pub item: &'a Item<'a>,
     pub quantity: u16,
 }
 
-impl<'a> data_types::IItemInstance<Item> for ItemInstance {
+impl<'a> data_types::IItemInstance<'a, Item<'a>> for ItemInstance<'a> {
     fn get_quantity(&self) -> u16 {
         self.quantity
     }
 
-    fn get_item(&self) -> &'static Item {
+    fn get_item(&self) -> &'a Item<'a> {
         self.item
     }
-    fn new(item: &'static Item, quantity: u16) -> Self {
+
+    fn new(item: &'a Item, quantity: u16) -> Self {
         ItemInstance {
             item: item,
             quantity: quantity,
@@ -44,12 +45,12 @@ impl<'a> data_types::IItemInstance<Item> for ItemInstance {
     }
 }
 
-pub struct Slot {
-    pub item_instance: Option<ItemInstance>,
-    pub on_item_changed: Option<fn(Option<ItemInstance>)>,
+pub struct Slot<'a> {
+    pub item_instance: Option<ItemInstance<'a>>,
+    pub on_item_changed: Option<fn(Option<ItemInstance<'a>>)>,
 }
 
-impl<'a> Debug for Slot {
+impl<'a> Debug for Slot<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BasicSlot")
             .field("item_instance", &self.item_instance)
@@ -57,12 +58,12 @@ impl<'a> Debug for Slot {
     }
 }
 
-impl<'a> data_types::ISlot<'a, Item, ItemInstance> for Slot {
-    fn get_item_instance(&self) -> Option<ItemInstance> {
+impl<'a> data_types::ISlot<'a, Item<'a>, ItemInstance<'a>> for Slot<'a> {
+    fn get_item_instance(&self) -> Option<ItemInstance<'a>> {
         self.item_instance
     }
 
-    fn set_item_instance(&mut self, item_instance: Option<ItemInstance>) {
+    fn set_item_instance(&mut self, item_instance: Option<ItemInstance<'a>>) {
         match self.on_item_changed {
             None => {}
             Some(x) => {
@@ -72,26 +73,26 @@ impl<'a> data_types::ISlot<'a, Item, ItemInstance> for Slot {
         self.item_instance = item_instance
     }
 
-    fn set_change_callback(&mut self, callback: Option<fn(Option<ItemInstance>)>) {
+    fn set_change_callback(&mut self, callback: Option<fn(Option<ItemInstance<'a>>)>) {
         self.on_item_changed = callback
     }
 }
 
 #[derive(Debug)]
-pub struct Inventory {
-    pub slots: Vec<Slot>,
+pub struct Inventory<'a> {
+    pub slots: Vec<Slot<'a>>,
 }
 
-impl<'a> data_types::IInventory<'a, Item, ItemInstance, Slot> for Inventory {
+impl<'a> data_types::IInventory<'a, Item<'a>, ItemInstance<'a>, Slot<'a>> for Inventory<'a> {
     fn size(&self) -> usize {
         self.slots.capacity()
     }
 
-    fn get_slots(&self) -> &[Slot] {
+    fn get_slots(&self) -> &[Slot<'a>] {
         &self.slots
     }
 
-    fn get_slots_mut(&mut self) -> &mut [Slot] {
+    fn get_slots_mut(&mut self) -> &mut [Slot<'a>] {
         &mut self.slots
     }
 }

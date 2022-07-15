@@ -8,20 +8,20 @@ use crate::sample_structs::Item;
 use crate::sample_structs::ItemInstance;
 use crate::sample_structs::Slot;
 
-const TEST_ITEM: Item = Item {
-    name: "brocoli",
-    max_stack_quantity: 100,
-};
-
 fn main() {
     fn on_change(iitem: Option<ItemInstance>) {
         println!("change callback:{:#?}", iitem)
     }
 
+    let test_item: Item = Item {
+        name: "brocoli",
+        max_stack_quantity: 100,
+    };
+
     let mut inv = Inventory {
         slots: vec![Slot {
             item_instance: Some(ItemInstance {
-                item: &TEST_ITEM,
+                item: &test_item,
                 quantity: 10,
             }),
             on_item_changed: Some(on_change),
@@ -29,13 +29,13 @@ fn main() {
     };
 
     let inst2 = inv.get_slots_mut()[0].transfer(Some(ItemInstance {
-        item: &TEST_ITEM,
+        item: &test_item,
         quantity: 102,
     }));
 
     println!("{:#?}", inst2);
 
-    println!("{:#?}", TEST_ITEM);
+    println!("{:#?}", test_item);
 
     println!("{:#?}", inv);
 }
