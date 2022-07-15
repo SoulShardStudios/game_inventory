@@ -1,18 +1,15 @@
-use crate::traits::{IItem, IItemInstance};
+use crate::traits;
 
-pub fn swap<'a, II: IItemInstance<'a>>(
+pub fn swap<'a, II: traits::IItemInstance<'a>>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>) {
     (other, current)
 }
 
-pub fn combine_stack<'a, II: IItemInstance<'a> + Copy>(
-    current: Option<II>,
-    other: Option<II>,
-) -> (Option<II>, Option<II>)
+pub fn combine_stack<'a, II>(current: Option<II>, other: Option<II>) -> (Option<II>, Option<II>)
 where
-    II: 'a,
+    II: traits::IItemInstance<'a> + Copy + 'a,
 {
     return match (current, other) {
         (Some(c), Some(o)) => {
@@ -44,12 +41,9 @@ where
     };
 }
 
-pub fn half_stack_split<'a, II: IItemInstance<'a> + Copy>(
-    current: Option<II>,
-    other: Option<II>,
-) -> (Option<II>, Option<II>)
+pub fn half_stack_split<'a, II>(current: Option<II>, other: Option<II>) -> (Option<II>, Option<II>)
 where
-    II: 'a,
+    II: traits::IItemInstance<'a> + Copy + 'a,
 {
     return match current {
         Some(c) => match other {
@@ -72,12 +66,12 @@ where
     };
 }
 
-pub fn single_stack_split<'a, II: IItemInstance<'a> + Copy>(
+pub fn single_stack_split<'a, II>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>)
 where
-    II: 'a,
+    II: traits::IItemInstance<'a> + Copy + 'a,
 {
     return match other {
         Some(o) => {

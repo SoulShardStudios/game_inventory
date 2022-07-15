@@ -1,13 +1,20 @@
-use crate::{
-    slot_management::combine_stack,
-    traits::{IInventory, IItem, IItemInstance, ISlot},
-};
+use crate::{slot_management::combine_stack, traits};
+
+fn wrap_combine_for_iter<'a, II, S>(slot: &mut &'a mut S, other: &mut Option<II>)
+where
+    II: traits::IItemInstance<'a> + Copy + 'a,
+    S: traits::ISlot<'a, II>,
+{
+    let res = combine_stack(slot.get_item_instance(), *other);
+    slot.set_item_instance(&res.0);
+    *other = res.1;
+}
 
 pub fn add_to_inventory<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> Option<II>
 where
-    II: IItemInstance<'a> + Copy + 'a,
-    S: ISlot<'a, II> + 'a,
-    Inv: IInventory<'a, II, S>,
+    II: traits::IItemInstance<'a> + Copy + 'a,
+    S: traits::ISlot<'a, II> + 'a,
+    Inv: traits::IInventory<'a, II, S>,
 {
     if inventory.size() == 0 {
         return other;
@@ -17,16 +24,6 @@ where
             if o.item().stackable() {
                 if o.item().max_quant() == o.quant() {
                     return Some(o);
-                }
-
-                fn wrap_combine_for_iter<'a, II, S>(slot: &mut &'a mut S, other: &mut Option<II>)
-                where
-                    II: IItemInstance<'a> + Copy + 'a,
-                    S: ISlot<'a, II>,
-                {
-                    let res = combine_stack(slot.get_item_instance(), *other);
-                    slot.set_item_instance(&res.0);
-                    *other = res.1;
                 }
 
                 let mut remaining = Some(o);
@@ -54,9 +51,9 @@ where
 
 pub fn inventory_contains_item<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> bool
 where
-    II: IItemInstance<'a> + Copy + 'a,
-    S: ISlot<'a, II> + 'a,
-    Inv: IInventory<'a, II, S> + 'a,
+    II: traits::IItemInstance<'a> + Copy + 'a,
+    S: traits::ISlot<'a, II> + 'a,
+    Inv: traits::IInventory<'a, II, S> + 'a,
 {
     match other {
         Some(o) => inventory
