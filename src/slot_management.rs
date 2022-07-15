@@ -1,18 +1,17 @@
-use crate::data_types::{IItem, IItemInstance};
+use crate::traits::{IItem, IItemInstance};
 
-pub fn swap<'a, I: IItem, II: IItemInstance<'a, I>>(
+pub fn swap<'a, II: IItemInstance<'a>>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>) {
     (other, current)
 }
 
-pub fn combine_stack<'a, I: IItem, II: IItemInstance<'a, I> + Copy>(
+pub fn combine_stack<'a, II: IItemInstance<'a> + Copy>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>)
 where
-    I: 'a,
     II: 'a,
 {
     return match (current, other) {
@@ -45,12 +44,11 @@ where
     };
 }
 
-pub fn half_stack_split<'a, I: IItem, II: IItemInstance<'a, I> + Copy>(
+pub fn half_stack_split<'a, II: IItemInstance<'a> + Copy>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>)
 where
-    I: 'a,
     II: 'a,
 {
     return match current {
@@ -74,12 +72,11 @@ where
     };
 }
 
-pub fn single_stack_split<'a, I: IItem, II: IItemInstance<'a, I> + Copy>(
+pub fn single_stack_split<'a, II: IItemInstance<'a> + Copy>(
     current: Option<II>,
     other: Option<II>,
 ) -> (Option<II>, Option<II>)
 where
-    I: 'a,
     II: 'a,
 {
     return match other {

@@ -1,33 +1,13 @@
 use crate::{
-    data_types::{IInventory, IItem, IItemInstance, ISlot},
     slot_management::combine_stack,
+    traits::{IInventory, IItem, IItemInstance, ISlot},
 };
 
-fn wrap_combine_for_iter<'a, I: IItem, II: IItemInstance<'a, I> + Copy, S: ISlot<'a, I, II>>(
-    slot: &mut S,
-    other: &mut Option<II>,
-) where
-    I: 'a,
-    II: 'a,
-{
-    let res = combine_stack(slot.get_item_instance(), *other);
-    slot.set_item_instance(res.0);
-    *other = res.1;
-}
-
-pub fn add_to_inventory<
-    'a,
-    I: IItem,
-    II: IItemInstance<'a, I> + Copy,
-    S: ISlot<'a, I, II>,
-    Inv: IInventory<'a, I, II, S>,
->(
-    inventory: &mut Inv,
-    other: Option<II>,
-) -> Option<II>
+pub fn add_to_inventory<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> Option<II>
 where
-    I: 'a,
-    II: 'a,
+    II: IItemInstance<'a> + Copy + 'a,
+    S: ISlot<'a, II> + 'a,
+    Inv: IInventory<'a, II, S>,
 {
     if inventory.size() == 0 {
         return other;
@@ -38,6 +18,17 @@ where
                 if o.item().max_quant() == o.quant() {
                     return Some(o);
                 }
+
+                fn wrap_combine_for_iter<'a, II, S>(slot: &mut &'a mut S, other: &mut Option<II>)
+                where
+                    II: IItemInstance<'a> + Copy + 'a,
+                    S: ISlot<'a, II>,
+                {
+                    let res = combine_stack(slot.get_item_instance(), *other);
+                    slot.set_item_instance(&res.0);
+                    *other = res.1;
+                }
+
                 let mut remaining = Some(o);
                 inventory
                     .slots_mut()
@@ -51,7 +42,7 @@ where
                 .find(|slot| slot.get_item_instance().is_none())
             {
                 Some(s) => {
-                    s.set_item_instance(Some(o));
+                    s.set_item_instance(&Some(o));
                     return None;
                 }
                 None => Some(o),
@@ -61,19 +52,11 @@ where
     }
 }
 
-pub fn inventory_contains_item<
-    'a,
-    I: IItem,
-    II: IItemInstance<'a, I> + Copy,
-    S: ISlot<'a, I, II>,
-    Inv: IInventory<'a, I, II, S>,
->(
-    inventory: &mut Inv,
-    other: Option<II>,
-) -> bool
+pub fn inventory_contains_item<'a, II, S, Inv>(inventory: &mut Inv, other: Option<II>) -> bool
 where
-    I: 'a,
-    II: 'a,
+    II: IItemInstance<'a> + Copy + 'a,
+    S: ISlot<'a, II> + 'a,
+    Inv: IInventory<'a, II, S> + 'a,
 {
     match other {
         Some(o) => inventory
