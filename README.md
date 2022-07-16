@@ -13,4 +13,4 @@ A fully generic, expandable inventory system built in rust.
  - `trait IItem` The broadsword item should always look the same and have the same base damage. This is that data.  
  - `trait IItemInstance` This is typically item that changes between instances like different stacks containing different amounts.  
  - `trait ISlot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.).  
- - `trait IInventory` Manages a collection of item instances. good for applying operations over a whole collection of slots, or just simply storing slots together.  
+ - If you want to manage a collection of slots, simply put them in a `Vec`, there are builtins to operate over a vec of slots (`add_item_to_inventory`,`inventory_contains_item`,e.t.c.)
