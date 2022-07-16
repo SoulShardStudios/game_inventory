@@ -1,11 +1,10 @@
+mod items;
 use inventory_rs::{
-    combine_stack, half_stack_split, inventory_contains_item, inventory_contains_item_type,
-    single_stack_split, swap, IItem, IItemInstance, ISlot, Item, ItemInstance, Slot,
+    combine_stack, half_stack_split, single_stack_split, swap, IItem, IItemInstance, ItemInstance,
 };
+use items::{JUNK_INST, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST};
 
-pub fn test_add_item_to_inventory() {}
-
-fn assert_was_swapped<'a>(
+pub fn assert_was_swapped<'a>(
     _0: Option<ItemInstance<'a>>,
     _1: Option<ItemInstance<'a>>,
     method: fn(
@@ -32,41 +31,6 @@ fn assert_was_swapped<'a>(
         (None, None) => {}
     }
 }
-
-pub const TORCH: Item = Item {
-    name: "torch",
-    max_quantity: 100,
-};
-
-pub const JUNK: Item = Item {
-    name: "junk",
-    max_quantity: 100,
-};
-
-pub const SWORD: Item = Item {
-    name: "sword",
-    max_quantity: 0,
-};
-
-pub const SWORD_INST: Option<ItemInstance> = Some(ItemInstance {
-    item: &SWORD,
-    quantity: 0,
-});
-
-pub const JUNK_INST: Option<ItemInstance> = Some(ItemInstance {
-    item: &JUNK,
-    quantity: 91,
-});
-
-pub const TORCH_INST: Option<ItemInstance> = Some(ItemInstance {
-    item: &TORCH,
-    quantity: 23,
-});
-
-pub const TORCH_FULL_STACK_INST: Option<ItemInstance> = Some(ItemInstance {
-    item: &TORCH,
-    quantity: 100,
-});
 
 #[test]
 fn test_swap() {
@@ -310,125 +274,5 @@ mod single {
         assert_was_swapped(SWORD_INST, None, combine_stack);
         assert_was_swapped(TORCH_INST, JUNK_INST, combine_stack);
         assert_was_swapped(JUNK_INST, TORCH_INST, combine_stack);
-    }
-}
-mod add_to {
-    use inventory_rs::add_to_inventory;
-
-    use super::*;
-
-    #[test]
-    fn full() {
-        let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-        ];
-
-        let insts_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
-        insts_to_test.iter().for_each(|inst| {
-            let res = add_to_inventory(&mut full, *inst);
-            assert!(res.unwrap().item().name() == inst.unwrap().item().name());
-            assert!(res.unwrap().quant() == inst.unwrap().quant());
-        });
-    }
-
-    #[test]
-    fn stackable() {
-        let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: TORCH_INST,
-                on_item_changed: &None,
-            },
-        ];
-        add_to_inventory(&mut full, TORCH_INST);
-        assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
-        assert!(full[0].item_instance().unwrap().quant() == TORCH.max_quant());
-        assert!(full[1].item_instance().unwrap().item().name() == SWORD.name());
-        assert!(full[2].item_instance().unwrap().item().name() == TORCH.name());
-        assert!(full[2].item_instance().unwrap().quant() == TORCH_INST.unwrap().quant() * 2);
-    }
-
-    #[test]
-    fn unstackable() {
-        let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
-        ];
-        add_to_inventory(&mut full, SWORD_INST);
-        assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
-        assert!(full[0].item_instance().unwrap().quant() == TORCH.max_quant());
-        assert!(full[1].item_instance().unwrap().item().name() == SWORD.name());
-        assert!(full[2].item_instance().unwrap().item().name() == SWORD.name());
-    }
-}
-mod contains {
-    use super::*;
-    #[test]
-    fn contains_type() {
-        let full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
-        ];
-        assert!(inventory_contains_item_type(&full, TORCH.name()));
-        assert!(inventory_contains_item_type(&full, SWORD.name()));
-        assert!(!inventory_contains_item_type(&full, JUNK.name()));
-    }
-    #[test]
-    fn contains_item() {
-        let full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
-        ];
-        assert!(inventory_contains_item(&full, TORCH_FULL_STACK_INST));
-        assert!(inventory_contains_item(&full, SWORD_INST));
-        assert!(!inventory_contains_item(&full, TORCH_INST));
     }
 }
