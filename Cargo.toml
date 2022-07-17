@@ -3,7 +3,7 @@ name = "game_inventory"
 version = "0.1.1"
 edition = "2021"
 description = "An inventory system independant of item data."
-license = "GPL-2.0-only"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/SoulShardStudios/game_inventory"
 
