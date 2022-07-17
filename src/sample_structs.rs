@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, marker::PhantomData};
 
 use crate::traits;
 
@@ -19,7 +19,7 @@ impl<'a> traits::IItem for Item<'a> {
         self.max_quantity
     }
 
-    fn name(&self) -> &'a str {
+    fn name(&self) -> &str {
         self.name
     }
 }
@@ -52,7 +52,8 @@ where
     II: traits::IItemInstance<'a>,
 {
     pub item_instance: Option<II>,
-    pub on_item_changed: &'a Option<fn(Option<II>)>,
+    pub modified: bool,
+    pub phantom_data: PhantomData<&'a II>,
 }
 
 impl<'a, II> Debug for Slot<'a, II>
@@ -71,23 +72,27 @@ where
     II: traits::IItemInstance<'a> + Sized + Copy,
 {
     fn item_instance(&self) -> Option<II> {
-        match &self.item_instance {
-            Some(i) => Some(II::new(i.item(), i.quant())),
-            None => None,
-        }
+        self.item_instance
     }
 
     fn set_item_instance(&mut self, item_instance: &Option<II>) {
-        match self.on_item_changed {
-            None => {}
-            Some(x) => {
-                (x)(*item_instance);
-            }
-        }
+        self.set_modified(true);
         self.item_instance = *item_instance
     }
 
-    fn set_change_callback(&mut self, callback: &'a Option<fn(Option<II>)>) {
-        self.on_item_changed = callback
+    fn modified(&mut self) -> bool {
+        self.modified
+    }
+
+    fn set_modified(&mut self, modified: bool) {
+        self.modified = modified
+    }
+
+    fn new(item_instance: Option<II>) -> Self {
+        Slot {
+            item_instance: item_instance,
+            modified: false,
+            phantom_data: PhantomData,
+        }
     }
 }

@@ -2,8 +2,8 @@ use crate::{combine_stack, traits};
 
 pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: Option<II>) -> bool
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II> + 'a,
+    II: traits::IItemInstance<'a> + Copy,
+    S: traits::ISlot<'a, II>,
 {
     match other {
         Some(o) => inventory.iter().any(|s| match s.item_instance() {
@@ -16,8 +16,8 @@ where
 
 pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II> + 'a,
+    II: traits::IItemInstance<'a> + Copy,
+    S: traits::ISlot<'a, II>,
 {
     inventory.iter().any(|s| match s.item_instance() {
         Some(i) => i.item().name() == name,
@@ -28,7 +28,7 @@ where
 pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: Option<II>) -> Option<II>
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II> + 'a,
+    S: traits::ISlot<'a, II>,
 {
     if inventory.capacity() == 0 {
         return other;

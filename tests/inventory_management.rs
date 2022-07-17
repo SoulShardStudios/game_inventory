@@ -10,18 +10,9 @@ mod add_to {
     #[test]
     fn full() {
         let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(SWORD_INST),
         ];
 
         let insts_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
@@ -35,18 +26,9 @@ mod add_to {
     #[test]
     fn stackable() {
         let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: TORCH_INST,
-                on_item_changed: &None,
-            },
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(SWORD_INST),
+            Slot::new(TORCH_INST),
         ];
         add_to_inventory(&mut full, TORCH_INST);
         assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
@@ -59,18 +41,9 @@ mod add_to {
     #[test]
     fn unstackable() {
         let mut full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(SWORD_INST),
+            Slot::new(None),
         ];
         add_to_inventory(&mut full, SWORD_INST);
         assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
@@ -84,18 +57,9 @@ mod contains {
     #[test]
     fn contains_type() {
         let full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(SWORD_INST),
+            Slot::new(None),
         ];
         assert!(inventory_contains_item_type(&full, TORCH.name()));
         assert!(inventory_contains_item_type(&full, SWORD.name()));
@@ -104,18 +68,9 @@ mod contains {
     #[test]
     fn contains_item() {
         let full = vec![
-            Slot {
-                item_instance: TORCH_FULL_STACK_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: SWORD_INST,
-                on_item_changed: &None,
-            },
-            Slot {
-                item_instance: None,
-                on_item_changed: &None,
-            },
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(SWORD_INST),
+            Slot::new(None),
         ];
         assert!(inventory_contains_item(&full, TORCH_FULL_STACK_INST));
         assert!(inventory_contains_item(&full, SWORD_INST));

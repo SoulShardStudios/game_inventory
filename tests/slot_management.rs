@@ -1,6 +1,7 @@
 mod items;
 use inventory_rs::{
-    combine_stack, half_stack_split, single_stack_split, swap, IItem, IItemInstance, ItemInstance,
+    combine_stack, half_stack_split, single_stack_split, swap, IItem, IItemInstance, ISlot,
+    ItemInstance, Slot,
 };
 use items::{JUNK_INST, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST};
 
@@ -274,5 +275,23 @@ mod single {
         assert_was_swapped(SWORD_INST, None, combine_stack);
         assert_was_swapped(TORCH_INST, JUNK_INST, combine_stack);
         assert_was_swapped(JUNK_INST, TORCH_INST, combine_stack);
+    }
+}
+mod modified {
+    use super::*;
+
+    #[test]
+    fn set() {
+        let mut slot = <Slot<ItemInstance<'static>>>::new(None);
+        assert_eq!(slot.modified, false);
+        slot.set_item_instance(&TORCH_INST);
+        assert_eq!(slot.modified, true);
+    }
+    #[test]
+    fn swap() {
+        let mut slot = <Slot<ItemInstance<'static>>>::new(None);
+        assert_eq!(slot.modified, false);
+        slot.transfer(TORCH_INST, "");
+        assert_eq!(slot.modified, true);
     }
 }
