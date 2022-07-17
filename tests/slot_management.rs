@@ -64,9 +64,9 @@ mod combine {
                 quantity: 20,
             }),
         ));
-        assert!(res.0.unwrap().item().name() == TORCH.name());
-        assert!(res.0.unwrap().quant() == 40);
-        assert!(res.1.is_none());
+        assert!(res.0.is_none());
+        assert!(res.1.unwrap().item().name() == TORCH.name());
+        assert!(res.1.unwrap().quant() == 40);
     }
 
     #[test]
@@ -82,9 +82,9 @@ mod combine {
             }),
         ));
         assert!(res.0.unwrap().item().name() == TORCH.name());
-        assert!(res.0.unwrap().quant() == 100);
+        assert!(res.0.unwrap().quant() == 10);
         assert!(res.1.unwrap().item().name() == TORCH.name());
-        assert!(res.1.unwrap().quant() == 10);
+        assert!(res.1.unwrap().quant() == 100);
     }
 
     #[test]
@@ -210,7 +210,7 @@ mod remove {
         assert!(res.1.unwrap().quant() == 21);
     }
     #[test]
-    fn current_empty() {
+    fn other_empty() {
         let res = remove_from_stack((
             Some(ItemInstance {
                 item: &TORCH,

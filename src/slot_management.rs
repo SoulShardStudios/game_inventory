@@ -1,14 +1,14 @@
 use crate::traits;
-/// Returns the inverse of the two inputs, specifically `(other, current)`.
+/// Returns the inverse of the two inputs, specifically `(items.1, items.0)`.
 pub fn swap<'a, II: traits::IItemInstance<'a>>(
     items: (Option<II>, Option<II>),
 ) -> (Option<II>, Option<II>) {
     (items.1, items.0)
 }
-/// Combines two stacks of items. Tries to put `other` into `current`.
+/// Combines two stacks of items. Tries to put `items.0` into `items.1`.
 ///
 /// Accounts for unstackable items, item overflowing, and many other edge cases.
-/// See the tests in `slot_management.rs` for specific behavior.
+/// See the tests in `tests/slot_management.rs` for specific behavior.
 pub fn combine_stack<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
@@ -27,22 +27,22 @@ where
             }
             let combined = c.quant() + o.quant();
             if combined < stack_size {
-                return (Some(II::new(c.item(), combined)), None);
+                return (None, Some(II::new(c.item(), combined)));
             }
             let left_over = combined - stack_size;
             return (
-                Some(II::new(c.item(), stack_size)),
                 Some(II::new(c.item(), left_over)),
+                Some(II::new(c.item(), stack_size)),
             );
         }
         _ => swap(items),
     };
 }
 
-/// Splits a stack of items into two. Tries to split `current` and put the second half into `other`
+/// Splits a stack of items into two. Tries to split `items.0` and put the second half into `items.1`
 ///
 /// Accounts for unstackable items, item overflowing, and many other edge cases.
-/// See the tests in `slot_management.rs` for specific behavior.
+/// See the tests in `tests/slot_management.rs` for specific behavior.
 pub fn half_stack_split<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
@@ -79,10 +79,10 @@ where
     };
 }
 
-/// Removes a single item from a stack. Tries to take a single item `other` and put it into `current`.
+/// Removes a single item from a stack. Tries to take a single item from `items.0` and put it into `items.1`.
 ///
 /// Accounts for unstackable items, item overflowing, and many other edge cases.
-/// See the tests in `slot_management.rs` for specific behavior.
+/// See the tests in `tests/slot_management.rs` for specific behavior.
 pub fn remove_from_stack<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,

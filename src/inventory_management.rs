@@ -1,5 +1,6 @@
 use crate::{combine_stack, traits};
 
+/// Checks if a `Vec<ISlot>` contains an item with a matching name and quantity.
 pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: Option<II>) -> bool
 where
     II: traits::IItemInstance<'a> + Copy,
@@ -14,6 +15,7 @@ where
     }
 }
 
+/// Checks if a `Vec<ISlot>` contains an item with a matching name.
 pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
 where
     II: traits::IItemInstance<'a> + Copy,
@@ -25,6 +27,11 @@ where
     })
 }
 
+/// Attempts to add an item to the given inventory.
+/// Returns the leftover item if the inventory is full.
+///
+/// Accounts for unstackable items, item overflowing, and many other edge cases.
+/// See the tests in `tests/inventory_management.rs` for specific behavior.
 pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: Option<II>) -> Option<II>
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
@@ -51,8 +58,8 @@ where
                                     return current;
                                 }
                                 let res = combine_stack((slot.item_instance(), Some(c)));
-                                slot.set_item_instance(&res.0);
-                                return res.1;
+                                slot.set_item_instance(&res.1);
+                                return res.0;
                             }
                             None => None,
                         },
