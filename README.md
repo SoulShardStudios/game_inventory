@@ -1,4 +1,4 @@
-# inventory-rs
+# game_inventory
 
 A framework for generalizing inventory logic and abstracting it away from
 item data in your specific game.
