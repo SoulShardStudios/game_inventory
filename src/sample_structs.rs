@@ -1,3 +1,4 @@
+//! A collection of sample structs used for testing the system, and showing how it can be used.
 use std::{fmt::Debug, marker::PhantomData};
 
 use crate::traits;

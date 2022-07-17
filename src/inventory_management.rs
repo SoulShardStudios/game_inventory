@@ -1,10 +1,12 @@
-use crate::{combine_stack, traits};
+//! A collection of generic functions that operate on a `Vec<ISlot>` (A collection of slots, AKA an inventory).
+use crate::slot_management::combine_stack;
+use crate::traits::{IItemInstance, ISlot};
 
 /// Checks if a `Vec<ISlot>` contains an item with a matching name and quantity.
 pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: Option<II>) -> bool
 where
-    II: traits::IItemInstance<'a> + Copy,
-    S: traits::ISlot<'a, II>,
+    II: IItemInstance<'a> + Copy,
+    S: ISlot<'a, II>,
 {
     match other {
         Some(o) => inventory.iter().any(|s| match s.item_instance() {
@@ -18,8 +20,8 @@ where
 /// Checks if a `Vec<ISlot>` contains an item with a matching name.
 pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
 where
-    II: traits::IItemInstance<'a> + Copy,
-    S: traits::ISlot<'a, II>,
+    II: IItemInstance<'a> + Copy,
+    S: ISlot<'a, II>,
 {
     inventory.iter().any(|s| match s.item_instance() {
         Some(i) => i.item().name() == name,
@@ -34,8 +36,8 @@ where
 /// See the tests in `tests/inventory_management.rs` for specific behavior.
 pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: Option<II>) -> Option<II>
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
-    S: traits::ISlot<'a, II>,
+    II: IItemInstance<'a> + Copy + 'a,
+    S: ISlot<'a, II>,
 {
     if inventory.capacity() == 0 {
         return other;

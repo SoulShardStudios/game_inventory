@@ -1,8 +1,7 @@
 mod items;
-use inventory_rs::{
-    combine_stack, half_stack_split, remove_from_stack, swap, IItem, IItemInstance, ISlot,
-    ItemInstance, Slot,
-};
+use inventory_rs::sample_structs::{ItemInstance, Slot};
+use inventory_rs::slot_management::{combine_stack, half_stack_split, remove_from_stack, swap};
+use inventory_rs::traits::{IItem, IItemInstance, ISlot};
 use items::{JUNK_INST, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST};
 
 pub fn assert_was_swapped<'a>(

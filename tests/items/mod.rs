@@ -1,4 +1,4 @@
-use inventory_rs::{Item, ItemInstance};
+use inventory_rs::sample_structs::{Item, ItemInstance};
 
 pub const TORCH: Item = Item {
     name: "torch",

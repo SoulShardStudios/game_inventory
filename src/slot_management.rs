@@ -1,3 +1,7 @@
+//! A collection of generic functions to use in `ISlot.transfer`.
+//!
+//! All methods, if they edit the item values, try to transfer
+//! the items from `items.0` to `items.1`.
 use crate::traits;
 /// Returns the inverse of the two inputs, specifically `(items.1, items.0)`.
 pub fn swap<'a, II: traits::IItemInstance<'a>>(

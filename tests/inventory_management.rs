@@ -1,9 +1,11 @@
 mod items;
-use inventory_rs::{
-    add_to_inventory, inventory_contains_item, inventory_contains_item_type, IItem, IItemInstance,
-    ISlot, Slot,
+use inventory_rs::inventory_management::{
+    add_to_inventory, inventory_contains_item, inventory_contains_item_type,
 };
+use inventory_rs::sample_structs::Slot;
+use inventory_rs::traits::{IItem, IItemInstance, ISlot};
 use items::{JUNK, JUNK_INST, SWORD, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST};
+
 mod add_to {
     use super::*;
 

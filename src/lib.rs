@@ -15,12 +15,7 @@
 //! - `trait ISlot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.). Allows for binding to the UI via a callback function.
 //! - If you want to manage a collection of slots, simply put them in a `Vec`, there are builtin functions to operate over a `Vec<Slot>`(`add_item_to_inventory`,`inventory_contains_item`,e.t.c.)
 
-mod inventory_management;
-mod sample_structs;
-mod slot_management;
-mod traits;
-
-pub use crate::inventory_management::*;
-pub use crate::sample_structs::*;
-pub use crate::slot_management::*;
-pub use crate::traits::*;
+pub mod inventory_management;
+pub mod sample_structs;
+pub mod slot_management;
+pub mod traits;
