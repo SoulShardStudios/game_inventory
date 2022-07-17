@@ -87,34 +87,34 @@ pub fn remove_from_stack<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
 {
-    return match items.1 {
-        Some(o) => {
-            if !o.item().stackable() {
+    return match items.0 {
+        Some(c) => {
+            if !c.item().stackable() {
                 return swap(items);
             }
-            match items.0 {
-                Some(c) => {
-                    if c.item().name() != o.item().name() {
+            match items.1 {
+                Some(o) => {
+                    if o.item().name() != c.item().name() {
                         return swap(items);
                     }
-                    if c.quant() == c.item().max_quant() {
+                    if o.quant() == o.item().max_quant() {
                         return swap(items);
                     }
-                    if o.quant() < 2 {
-                        return (None, Some(II::new(o.item(), c.quant() + 1)));
+                    if c.quant() < 2 {
+                        return (None, Some(II::new(o.item(), o.quant() + 1)));
                     }
                     return (
-                        Some(II::new(o.item(), o.quant() - 1)),
-                        Some(II::new(o.item(), c.quant() + 1)),
+                        Some(II::new(c.item(), c.quant() - 1)),
+                        Some(II::new(o.item(), o.quant() + 1)),
                     );
                 }
                 None => {
-                    if o.quant() < 2 {
-                        return (None, Some(II::new(o.item(), 1)));
+                    if c.quant() < 2 {
+                        return (None, Some(II::new(c.item(), 1)));
                     }
                     return (
-                        Some(II::new(o.item(), o.quant() - 1)),
-                        Some(II::new(o.item(), 1)),
+                        Some(II::new(c.item(), c.quant() - 1)),
+                        Some(II::new(c.item(), 1)),
                     );
                 }
             }

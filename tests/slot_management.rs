@@ -197,34 +197,34 @@ mod remove {
         let res = remove_from_stack((
             Some(ItemInstance {
                 item: &TORCH,
-                quantity: 20,
+                quantity: 3,
             }),
             Some(ItemInstance {
                 item: &TORCH,
-                quantity: 3,
+                quantity: 20,
             }),
         ));
         assert!(res.0.unwrap().item().name() == TORCH.name());
-        assert!(res.0.unwrap().quant() == 21);
+        assert!(res.0.unwrap().quant() == 2);
         assert!(res.1.unwrap().item().name() == TORCH.name());
-        assert!(res.1.unwrap().quant() == 2);
+        assert!(res.1.unwrap().quant() == 21);
     }
     #[test]
     fn current_empty() {
         let res = remove_from_stack((
-            None,
             Some(ItemInstance {
                 item: &TORCH,
                 quantity: 3,
             }),
+            None,
         ));
         assert!(res.0.unwrap().item().name() == TORCH.name());
-        assert!(res.0.unwrap().quant() == 1);
+        assert!(res.0.unwrap().quant() == 2);
         assert!(res.1.unwrap().item().name() == TORCH.name());
-        assert!(res.1.unwrap().quant() == 2);
+        assert!(res.1.unwrap().quant() == 1);
     }
     #[test]
-    fn remove_at_end() {
+    fn none_when_empty() {
         let res = remove_from_stack((
             Some(ItemInstance {
                 item: &TORCH,
@@ -235,6 +235,7 @@ mod remove {
                 quantity: 20,
             }),
         ));
+        println!("{:#?}", res);
         assert!(res.1.unwrap().item().name() == TORCH.name());
         assert!(res.1.unwrap().quant() == 21);
         assert!(res.0.is_none());
