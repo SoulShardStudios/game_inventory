@@ -1,27 +1,29 @@
 use crate::traits;
-
+/// Returns the inverse of the two inputs, specifically `(other, current)`.
 pub fn swap<'a, II: traits::IItemInstance<'a>>(
-    current: Option<II>,
-    other: Option<II>,
+    items: (Option<II>, Option<II>),
 ) -> (Option<II>, Option<II>) {
-    (other, current)
+    (items.1, items.0)
 }
-
-pub fn combine_stack<'a, II>(current: Option<II>, other: Option<II>) -> (Option<II>, Option<II>)
+/// Combines two stacks of items. Tries to put `other` into `current`.
+///
+/// Accounts for unstackable items, item overflowing, and many other edge cases.
+/// See the tests in `slot_management.rs` for specific behavior.
+pub fn combine_stack<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
 {
-    return match (current, other) {
+    return match items {
         (Some(c), Some(o)) => {
             if c.item().name() != o.item().name() {
-                return swap(Some(c), Some(o));
+                return swap(items);
             }
             if !c.item().stackable() {
-                return swap(Some(c), Some(o));
+                return swap(items);
             }
             let stack_size = c.item().max_quant();
             if c.quant() >= stack_size || o.quant() >= stack_size {
-                return swap(Some(c), Some(o));
+                return swap(items);
             }
             let combined = c.quant() + o.quant();
             if combined < stack_size {
@@ -33,31 +35,33 @@ where
                 Some(II::new(c.item(), left_over)),
             );
         }
-        (Some(c), None) => swap(Some(c), None),
-        (None, Some(o)) => swap(None, Some(o)),
-        (None, None) => swap(None, None),
+        _ => swap(items),
     };
 }
 
-pub fn half_stack_split<'a, II>(current: Option<II>, other: Option<II>) -> (Option<II>, Option<II>)
+/// Splits a stack of items into two. Tries to split `current` and put the second half into `other`
+///
+/// Accounts for unstackable items, item overflowing, and many other edge cases.
+/// See the tests in `slot_management.rs` for specific behavior.
+pub fn half_stack_split<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
 {
-    return match current {
+    return match items.0 {
         Some(c) => {
             if !c.item().stackable() {
-                return swap(current, other);
+                return swap(items);
             }
-            if match other {
+            if match items.1 {
                 Some(o) => c.item().name() != o.item().name(),
                 None => false,
             } {
-                return swap(current, other);
+                return swap(items);
             }
             if c.quant() < 2 {
-                return swap(current, other);
+                return swap(items);
             }
-            let other_quant = match other {
+            let other_quant = match items.1 {
                 Some(o) => o.quant(),
                 None => 0,
             };
@@ -71,49 +75,50 @@ where
                 )),
             );
         }
-        None => swap(current, other),
+        None => swap(items),
     };
 }
 
-pub fn single_stack_split<'a, II>(
-    current: Option<II>,
-    other: Option<II>,
-) -> (Option<II>, Option<II>)
+/// Removes a single item from a stack. Tries to take a single item `other` and put it into `current`.
+///
+/// Accounts for unstackable items, item overflowing, and many other edge cases.
+/// See the tests in `slot_management.rs` for specific behavior.
+pub fn remove_from_stack<'a, II>(items: (Option<II>, Option<II>)) -> (Option<II>, Option<II>)
 where
     II: traits::IItemInstance<'a> + Copy + 'a,
 {
-    return match other {
+    return match items.1 {
         Some(o) => {
             if !o.item().stackable() {
-                return swap(current, other);
+                return swap(items);
             }
-            match current {
+            match items.0 {
                 Some(c) => {
                     if c.item().name() != o.item().name() {
-                        return swap(current, other);
+                        return swap(items);
                     }
                     if c.quant() == c.item().max_quant() {
-                        return swap(current, other);
+                        return swap(items);
                     }
                     if o.quant() < 2 {
-                        return (Some(II::new(o.item(), c.quant() + 1)), None);
+                        return (None, Some(II::new(o.item(), c.quant() + 1)));
                     }
                     return (
-                        Some(II::new(o.item(), c.quant() + 1)),
                         Some(II::new(o.item(), o.quant() - 1)),
+                        Some(II::new(o.item(), c.quant() + 1)),
                     );
                 }
                 None => {
                     if o.quant() < 2 {
-                        return (Some(II::new(o.item(), 1)), None);
+                        return (None, Some(II::new(o.item(), 1)));
                     }
                     return (
-                        Some(II::new(o.item(), 1)),
                         Some(II::new(o.item(), o.quant() - 1)),
+                        Some(II::new(o.item(), 1)),
                     );
                 }
             }
         }
-        None => swap(current, other),
+        None => swap(items),
     };
 }

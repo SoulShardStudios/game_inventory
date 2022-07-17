@@ -2,6 +2,12 @@ use std::{fmt::Debug, marker::PhantomData};
 
 use crate::traits;
 
+/// A sample item struct used for testing.
+///
+/// Has the minimum amount of fields required to make the system work.
+///
+/// As long as your implementation satisfies the trait bounds it does not matter what immutable
+/// item data you put in here.
 #[derive(Debug)]
 pub struct Item<'a> {
     pub name: &'a str,
@@ -24,6 +30,12 @@ impl<'a> traits::IItem for Item<'a> {
     }
 }
 
+/// A sample item instance struct used for testing.
+///
+/// Has the minimum amount of fields required to make the system work.
+///
+/// As long as your implementation satisfies the trait bounds it does not matter what instanced
+/// item data you put in here.
 #[derive(Debug, Clone, Copy)]
 pub struct ItemInstance<'a> {
     pub item: &'a (dyn traits::IDebugItem),
@@ -47,13 +59,22 @@ impl<'a> traits::IItemInstance<'a> for ItemInstance<'a> {
     }
 }
 
+/// A sample slot struct used for testing.
+///
+/// A significant reduction in boiler plate would
+/// come from making your own slot non-generic. For the purpose of an
+/// example, I decided that I wanted mine to be generic to prove it was possible
+/// if for some reason you need that functionality.
+///
+/// The main thing you probably want to change other than that is the transfer method.
+/// some methods like `half_stack_split` and `combine_stack` would be pretty useful.
 pub struct Slot<'a, II>
 where
     II: traits::IItemInstance<'a>,
 {
     pub item_instance: Option<II>,
     pub modified: bool,
-    pub phantom_data: PhantomData<&'a II>,
+    pub phantom: PhantomData<&'a II>,
 }
 
 impl<'a, II> Debug for Slot<'a, II>
@@ -63,6 +84,7 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BasicSlot")
             .field("item_instance", &self.item_instance)
+            .field("modified", &self.modified)
             .finish()
     }
 }
@@ -92,7 +114,7 @@ where
         Slot {
             item_instance: item_instance,
             modified: false,
-            phantom_data: PhantomData,
+            phantom: PhantomData,
         }
     }
 }

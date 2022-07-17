@@ -54,7 +54,7 @@ pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
     ///
     /// The button variable is necessary for changing the behavior based on user input.
     fn transfer(&mut self, item_instance: Option<II>, _button: &str) -> Option<II> {
-        let res = swap(self.item_instance(), item_instance);
+        let res = swap((self.item_instance(), item_instance));
         self.set_modified(true);
         self.set_item_instance(&res.0);
         res.1

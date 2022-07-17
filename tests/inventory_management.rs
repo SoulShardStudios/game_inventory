@@ -15,8 +15,8 @@ mod add_to {
             Slot::new(SWORD_INST),
         ];
 
-        let insts_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
-        insts_to_test.iter().for_each(|inst| {
+        let instances_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
+        instances_to_test.iter().for_each(|inst| {
             let res = add_to_inventory(&mut full, *inst);
             assert!(res.unwrap().item().name() == inst.unwrap().item().name());
             assert!(res.unwrap().quant() == inst.unwrap().quant());

@@ -50,7 +50,7 @@ where
                                 if s.quant() == s.item().max_quant() {
                                     return current;
                                 }
-                                let res = combine_stack(slot.item_instance(), Some(c));
+                                let res = combine_stack((slot.item_instance(), Some(c)));
                                 slot.set_item_instance(&res.0);
                                 return res.1;
                             }
