@@ -5,9 +5,9 @@ A fully generic, expandable inventory system built in rust.
 ## Design specifications
 
 - Everything should be interchangeable and as generic as possible
-- The architecture should support Item instance data and item metadata
-- Tests are required for sorting out bugs
-- Built with rust to include of the robust guarantees rust ensures
+- The architecture should support item instance data and item metadata
+- Should be entirely bug free (unit tests and built in rust, so it should be good)
+- Fast to set up in new games
 
 ## Overall architecture and data types
 
