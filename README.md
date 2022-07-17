@@ -10,4 +10,4 @@ item data in your specific game.
 - Should be very reliable (made in rust + unit tests).
 - Fast to set up in new games.
 
-See more about this crate on [docs.rs](https://docs.rs/inventory-rs/).
+See more about this crate on [docs.rs](https://docs.rs/game_inventory/latest/game_inventory/).
