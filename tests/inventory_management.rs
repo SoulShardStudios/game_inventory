@@ -19,7 +19,7 @@ mod add_to {
 
         let instances_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
         instances_to_test.iter().for_each(|inst| {
-            let res = add_to_inventory(&mut full, *inst);
+            let res = add_to_inventory(&mut full, inst.unwrap());
             assert!(res.unwrap().item().name() == inst.unwrap().item().name());
             assert!(res.unwrap().quant() == inst.unwrap().quant());
         });
@@ -32,12 +32,28 @@ mod add_to {
             Slot::new(SWORD_INST),
             Slot::new(TORCH_INST),
         ];
-        add_to_inventory(&mut full, TORCH_INST);
+        add_to_inventory(&mut full, TORCH_INST.unwrap());
         assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
         assert!(full[0].item_instance().unwrap().quant() == TORCH.max_quant());
         assert!(full[1].item_instance().unwrap().item().name() == SWORD.name());
         assert!(full[2].item_instance().unwrap().item().name() == TORCH.name());
         assert!(full[2].item_instance().unwrap().quant() == TORCH_INST.unwrap().quant() * 2);
+    }
+
+    #[test]
+    fn stackable_with_none() {
+        let mut full = vec![
+            Slot::new(TORCH_FULL_STACK_INST),
+            Slot::new(None),
+            Slot::new(TORCH_INST),
+        ];
+        add_to_inventory(&mut full, TORCH_INST.unwrap());
+        assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
+        assert!(full[0].item_instance().unwrap().quant() == TORCH.max_quant());
+        assert!(full[1].item_instance().unwrap().item().name() == TORCH.name());
+        assert!(full[1].item_instance().unwrap().quant() == TORCH_INST.unwrap().quant());
+        assert!(full[2].item_instance().unwrap().item().name() == TORCH.name());
+        assert!(full[2].item_instance().unwrap().quant() == TORCH_INST.unwrap().quant());
     }
 
     #[test]
@@ -47,7 +63,7 @@ mod add_to {
             Slot::new(SWORD_INST),
             Slot::new(None),
         ];
-        add_to_inventory(&mut full, SWORD_INST);
+        add_to_inventory(&mut full, SWORD_INST.unwrap());
         assert!(full[0].item_instance().unwrap().item().name() == TORCH.name());
         assert!(full[0].item_instance().unwrap().quant() == TORCH.max_quant());
         assert!(full[1].item_instance().unwrap().item().name() == SWORD.name());
@@ -74,8 +90,11 @@ mod contains {
             Slot::new(SWORD_INST),
             Slot::new(None),
         ];
-        assert!(inventory_contains_item(&full, TORCH_FULL_STACK_INST));
-        assert!(inventory_contains_item(&full, SWORD_INST));
-        assert!(!inventory_contains_item(&full, TORCH_INST));
+        assert!(inventory_contains_item(
+            &full,
+            TORCH_FULL_STACK_INST.unwrap()
+        ));
+        assert!(inventory_contains_item(&full, SWORD_INST.unwrap()));
+        assert!(!inventory_contains_item(&full, TORCH_INST.unwrap()));
     }
 }
