@@ -26,3 +26,20 @@ pub mod sample_items;
 pub mod sample_structs;
 pub mod slot_management;
 pub mod traits;
+
+/// A combination of the `sample_items` and `sample_structs` crates.
+///
+/// These are used for tests and examples, and if you want you can use them.
+pub mod samples {
+    pub use crate::sample_items::*;
+    pub use crate::sample_structs::*;
+}
+
+/// A combination of the `inventory_management` and `slot_management` crates.
+///
+/// This is a container for all helper functions,
+/// whether they are inventory or slot related.
+pub mod helpers {
+    pub use crate::inventory_management::*;
+    pub use crate::slot_management::*;
+}
