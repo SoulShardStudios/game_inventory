@@ -1,10 +1,10 @@
 [package]
 name = "game_inventory"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "An inventory system independant of item data."
 license = "MIT"
-readme = "README.md"
+readme = "crates_readme.md"
 repository = "https://github.com/SoulShardStudios/game_inventory"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
