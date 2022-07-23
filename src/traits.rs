@@ -4,7 +4,7 @@ use crate::slot_management::swap;
 ///
 /// Static item data are things like the items name, the items base damage. Data
 /// about the item that does not change item stack to item stack should be stored here.
-pub trait IItem {
+pub trait IItem: std::fmt::Debug {
     /// Whether the item can be put into stacks.
     /// A sword you may only want to have one of,
     /// While throwing knives may be stackable.
@@ -18,8 +18,6 @@ pub trait IItem {
     /// variable to show in the UI, and put your unique name here.
     fn name(&self) -> &str;
 }
-/// Combines Debug and IItem traits
-pub trait IDebugItem: IItem + core::fmt::Debug {}
 /// Trait for storing item instance data.
 ///
 /// If you have two stacks of items, the quantity of items
@@ -28,9 +26,9 @@ pub trait IItemInstance<'a> {
     /// The quantity of items in this instance.
     fn quant(&self) -> u16;
     /// The item stored by this instance.
-    fn item(&self) -> &'a dyn IDebugItem;
+    fn item(&self) -> &'a dyn IItem;
     /// Creates a new item instance.
-    fn new(item: &'a dyn IDebugItem, quantity: u16) -> Self;
+    fn new(item: &'a dyn IItem, quantity: u16) -> Self;
 }
 /// Trait for defining an item slot.
 ///
