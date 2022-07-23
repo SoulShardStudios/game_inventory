@@ -234,7 +234,6 @@ mod remove {
                 quantity: 20,
             }),
         ));
-        println!("{:#?}", res);
         assert!(res.1.unwrap().item().name() == TORCH.name());
         assert!(res.1.unwrap().quant() == 21);
         assert!(res.0.is_none());

@@ -45,7 +45,8 @@ pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
     fn set_item_instance(&mut self, item_instance: &Option<II>);
     /// Switch out the item instance stored in this slot with some rules.
     ///
-    /// The input is the item you intend to put into the slot and the output is the item the slot is expelling.
+    /// The input is the item you intend to put into the slot and the output
+    /// is the item the slot is expelling.
     ///
     /// Here are some examples of why this is useful: If you click a slot in the UI,
     /// there are a variety of behaviors that can occur. Maybe on right clicking you
@@ -59,9 +60,9 @@ pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
         self.set_item_instance(&res.0);
         res.1
     }
-    /// Whether the slots contents have been modified
+    /// Whether the slots contents have been modified.
     fn modified(&mut self) -> bool;
-    /// Whether the slots contents have been modified
+    /// Sets whether the slots contents have been modified.
     fn set_modified(&mut self, modified: bool);
     fn new(item_instance: Option<II>) -> Self;
 }

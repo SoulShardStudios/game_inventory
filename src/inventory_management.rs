@@ -37,7 +37,10 @@ where
         .fold(0, |quant, slot| match slot.item_instance() {
             Some(ii) => {
                 if ii.item().name() == name {
-                    return ii.quant() + quant;
+                    if ii.item().stackable() {
+                        return ii.quant() + quant;
+                    }
+                    return quant + 1;
                 }
                 quant
             }
@@ -57,7 +60,8 @@ where
         .count()
 }
 
-pub fn add_stackable_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
+/// Attempts to add a stackable item to the given inventory
+fn add_stackable_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
 where
     II: IItemInstance<'a> + Copy + 'a,
     S: ISlot<'a, II>,
@@ -93,7 +97,8 @@ where
     return inventory.iter_mut().fold(Some(other), try_add_to_slot);
 }
 
-pub fn add_unstackable_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
+/// Attempts to add an unstackable item to the given inventory.
+fn add_unstackable_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
 where
     II: IItemInstance<'a> + Copy + 'a,
     S: ISlot<'a, II>,
@@ -135,10 +140,10 @@ where
     return add_stackable_to_inventory(inventory, other);
 }
 
-/// Attempts to remove an item from the given inventory
+/// Attempts to remove an item from the given inventory.
 ///
 /// If you are trying to remove an item from a specific slot,
-/// index the `Vec<ISlot>` This is only for bulk removal of items
+/// index the `Vec<ISlot>`. This is only for bulk removal of items.
 ///
 /// The `quant()` of `item` will be used to determine how many items to remove from the given inventory.
 ///
