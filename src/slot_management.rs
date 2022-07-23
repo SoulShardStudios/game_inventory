@@ -174,7 +174,7 @@ where
 /// assert!(half_stack_split((None, SWORD_INST)).is_err());
 /// // items.0 is unstackable
 /// assert!(half_stack_split((SWORD_INST, None)).is_err());
-/// // items.0 != items.1
+/// // The items are not the same.
 /// assert!(half_stack_split((TORCH_INST, JUNK_INST)).is_err());
 /// assert!(half_stack_split((JUNK_INST, TORCH_INST)).is_err());
 /// ```
