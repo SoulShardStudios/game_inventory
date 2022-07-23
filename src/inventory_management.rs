@@ -1,5 +1,5 @@
 //! A collection of generic functions that operate on a `Vec<ISlot>` (A collection of slots, AKA an inventory).
-use crate::slot_management::combine_stack;
+use crate::slot_management::{combine_stack, swap_if_err};
 use crate::traits::{IItemInstance, ISlot};
 
 /// Checks if a `Vec<ISlot>` contains an item with a matching name and quantity.
@@ -90,7 +90,7 @@ where
         if s.quant() == s.item().max_quant() {
             return other;
         }
-        let res = combine_stack((slot.item_instance(), Some(c)));
+        let res = swap_if_err(combine_stack((slot.item_instance(), Some(c))));
         slot.set_item_instance(&res.1);
         return res.0;
     }

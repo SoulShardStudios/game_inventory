@@ -22,6 +22,7 @@
 //! - `Vec<ISlot>` Is the way an inventory is composed. There are builtin functions in `inventory_management` that can help manage the inventory.
 
 pub mod inventory_management;
+pub mod sample_items;
 pub mod sample_structs;
 pub mod slot_management;
 pub mod traits;

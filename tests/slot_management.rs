@@ -1,119 +1,19 @@
-mod items;
+/*
+use game_inventory::sample_items::{
+    JUNK_INST, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST,
+};
 use game_inventory::sample_structs::{ItemInstance, Slot};
 use game_inventory::slot_management::{combine_stack, half_stack_split, remove_from_stack, swap};
 use game_inventory::traits::{IItem, IItemInstance, ISlot};
-use items::{JUNK_INST, SWORD_INST, TORCH, TORCH_FULL_STACK_INST, TORCH_INST};
-
-pub fn assert_was_swapped<'a>(
-    items: (Option<ItemInstance<'a>>, Option<ItemInstance<'a>>),
-    method: fn(
-        (Option<ItemInstance<'a>>, Option<ItemInstance<'a>>),
-    ) -> (Option<ItemInstance<'a>>, Option<ItemInstance<'a>>),
-) {
-    let res = method(items);
-    match items {
-        (Some(a), Some(b)) => {
-            assert!(res.0.unwrap().quant() == b.quant());
-            assert!(res.1.unwrap().quant() == a.quant());
-            assert!(res.1.unwrap().item().name() == a.item().name());
-            assert!(res.0.unwrap().item().name() == b.item().name());
-        }
-        (None, Some(b)) => {
-            assert!(res.0.unwrap().quant() == b.quant());
-            assert!(res.0.unwrap().item().name() == b.item().name());
-        }
-        (Some(a), None) => {
-            assert!(res.1.unwrap().quant() == a.quant());
-            assert!(res.1.unwrap().item().name() == a.item().name());
-        }
-        (None, None) => {}
-    }
-}
 
 #[test]
-fn test_swap() {
-    assert_was_swapped(
-        (
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 10,
-            }),
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 20,
-            }),
-        ),
-        swap,
-    );
-    assert_was_swapped((TORCH_INST, None), swap);
-    assert_was_swapped((None, TORCH_INST), swap);
-}
+fn test_swap() {}
 mod combine {
     use super::*;
 
     #[test]
-    fn simple() {
-        let res = combine_stack((
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 20,
-            }),
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 20,
-            }),
-        ));
-        assert!(res.0.is_none());
-        assert!(res.1.unwrap().item().name() == TORCH.name());
-        assert!(res.1.unwrap().quant() == 40);
-    }
+    fn combine_edge_cases() {
 
-    #[test]
-    fn overflow() {
-        let res = combine_stack((
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 90,
-            }),
-            Some(ItemInstance {
-                item: &TORCH,
-                quantity: 20,
-            }),
-        ));
-        assert!(res.0.unwrap().item().name() == TORCH.name());
-        assert!(res.0.unwrap().quant() == 10);
-        assert!(res.1.unwrap().item().name() == TORCH.name());
-        assert!(res.1.unwrap().quant() == 100);
-    }
-
-    #[test]
-    fn edge_cases() {
-        assert_was_swapped(
-            (
-                Some(ItemInstance {
-                    item: &TORCH,
-                    quantity: 10,
-                }),
-                None,
-            ),
-            combine_stack,
-        );
-        assert_was_swapped(
-            (
-                None,
-                Some(ItemInstance {
-                    item: &TORCH,
-                    quantity: 20,
-                }),
-            ),
-            combine_stack,
-        );
-        assert_was_swapped((None, SWORD_INST), combine_stack);
-        assert_was_swapped((SWORD_INST, None), combine_stack);
-        assert_was_swapped((TORCH_INST, JUNK_INST), combine_stack);
-        assert_was_swapped((JUNK_INST, TORCH_INST), combine_stack);
-        assert_was_swapped((TORCH_FULL_STACK_INST, TORCH_INST), combine_stack);
-        assert_was_swapped((TORCH_INST, TORCH_FULL_STACK_INST), combine_stack);
     }
 }
 mod split {
@@ -284,3 +184,4 @@ mod modified {
         assert_eq!(slot.modified, true);
     }
 }
+*/
