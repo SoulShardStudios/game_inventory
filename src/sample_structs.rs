@@ -1,7 +1,7 @@
 //! A collection of sample structs used for testing the system, and showing how it can be used.
 use std::{fmt::Debug, marker::PhantomData};
 
-use crate::traits;
+use crate::traits::{IItem, IItemInstance, ISlot};
 
 /// A sample item struct used for testing.
 ///
@@ -15,9 +15,7 @@ pub struct Item<'a> {
     pub max_quantity: u16,
 }
 
-impl<'a> traits::IDebugItem for Item<'a> {}
-
-impl<'a> traits::IItem for Item<'a> {
+impl<'a> IItem for Item<'a> {
     fn stackable(&self) -> bool {
         self.max_quantity > 1
     }
@@ -39,20 +37,20 @@ impl<'a> traits::IItem for Item<'a> {
 /// item data you put in here.
 #[derive(Debug, Clone, Copy)]
 pub struct ItemInstance<'a> {
-    pub item: &'a (dyn traits::IDebugItem),
+    pub item: &'a dyn IItem,
     pub quantity: u16,
 }
 
-impl<'a> traits::IItemInstance<'a> for ItemInstance<'a> {
+impl<'a> IItemInstance<'a> for ItemInstance<'a> {
     fn quant(&self) -> u16 {
         self.quantity
     }
 
-    fn item(&self) -> &'a dyn traits::IDebugItem {
+    fn item(&self) -> &'a dyn IItem {
         self.item
     }
 
-    fn new(item: &'a dyn traits::IDebugItem, quantity: u16) -> Self {
+    fn new(item: &'a dyn IItem, quantity: u16) -> Self {
         ItemInstance {
             item: item,
             quantity: quantity,
@@ -71,7 +69,7 @@ impl<'a> traits::IItemInstance<'a> for ItemInstance<'a> {
 /// some methods like `half_stack_split` and `combine_stack` would be pretty useful.
 pub struct Slot<'a, II>
 where
-    II: traits::IItemInstance<'a>,
+    II: IItemInstance<'a>,
 {
     pub item_instance: Option<II>,
     pub modified: bool,
@@ -80,7 +78,7 @@ where
 
 impl<'a, II> Debug for Slot<'a, II>
 where
-    II: traits::IItemInstance<'a> + Debug,
+    II: IItemInstance<'a> + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BasicSlot")
@@ -90,9 +88,9 @@ where
     }
 }
 
-impl<'a, II> traits::ISlot<'a, II> for Slot<'a, II>
+impl<'a, II> ISlot<'a, II> for Slot<'a, II>
 where
-    II: traits::IItemInstance<'a> + Sized + Copy,
+    II: IItemInstance<'a> + Sized + Copy,
 {
     fn item_instance(&self) -> Option<II> {
         self.item_instance
