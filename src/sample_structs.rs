@@ -10,12 +10,12 @@ use crate::traits::{IItem, IItemInstance, ISlot};
 /// As long as your implementation satisfies the trait bounds it does not matter what immutable
 /// item data you put in here.
 #[derive(Debug)]
-pub struct Item<'a> {
+pub struct DefaultItem<'a> {
     pub name: &'a str,
     pub max_quantity: u16,
 }
 
-impl<'a> IItem for Item<'a> {
+impl<'a> IItem for DefaultItem<'a> {
     fn stackable(&self) -> bool {
         self.max_quantity > 1
     }
@@ -36,12 +36,12 @@ impl<'a> IItem for Item<'a> {
 /// As long as your implementation satisfies the trait bounds it does not matter what instanced
 /// item data you put in here.
 #[derive(Debug, Clone, Copy)]
-pub struct ItemInstance<'a> {
+pub struct DefaultItemInstance<'a> {
     pub item: &'a dyn IItem,
     pub quantity: u16,
 }
 
-impl<'a> IItemInstance<'a> for ItemInstance<'a> {
+impl<'a> IItemInstance<'a> for DefaultItemInstance<'a> {
     fn quant(&self) -> u16 {
         self.quantity
     }
@@ -51,7 +51,7 @@ impl<'a> IItemInstance<'a> for ItemInstance<'a> {
     }
 
     fn new(item: &'a dyn IItem, quantity: u16) -> Self {
-        ItemInstance {
+        DefaultItemInstance {
             item: item,
             quantity: quantity,
         }
@@ -67,7 +67,7 @@ impl<'a> IItemInstance<'a> for ItemInstance<'a> {
 ///
 /// The main thing you probably want to change other than that is the transfer method.
 /// some methods like `half_stack_split` and `combine_stack` would be pretty useful.
-pub struct Slot<'a, II>
+pub struct DefaultSlot<'a, II>
 where
     II: IItemInstance<'a>,
 {
@@ -76,7 +76,7 @@ where
     pub phantom: PhantomData<&'a II>,
 }
 
-impl<'a, II> Debug for Slot<'a, II>
+impl<'a, II> Debug for DefaultSlot<'a, II>
 where
     II: IItemInstance<'a> + Debug,
 {
@@ -88,7 +88,7 @@ where
     }
 }
 
-impl<'a, II> ISlot<'a, II> for Slot<'a, II>
+impl<'a, II> ISlot<'a, II> for DefaultSlot<'a, II>
 where
     II: IItemInstance<'a> + Sized + Copy,
 {
@@ -110,7 +110,7 @@ where
     }
 
     fn new(item_instance: Option<II>) -> Self {
-        Slot {
+        DefaultSlot {
             item_instance: item_instance,
             modified: false,
             phantom: PhantomData,
