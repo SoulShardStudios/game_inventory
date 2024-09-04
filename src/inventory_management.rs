@@ -5,13 +5,13 @@ use crate::traits::{IItemInstance, ISlot};
 /// Checks if a `Vec<ISlot>` contains an item with a matching name and quantity.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH, SWORD, JUNK, TORCH_FULL_STACK_INST, SWORD_INST};
+/// # use game_inventory::samples::{DefaultSlot, TORCH, SWORD, JUNK, TORCH_FULL_STACK_INST, SWORD_INST};
 /// # use game_inventory::traits::{ISlot, IItem};
 /// # use game_inventory::helpers::inventory_contains_item_type;
 /// let inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(None),
 /// ];
 /// assert!(inventory_contains_item_type(&inventory, TORCH.name()));
 /// assert!(inventory_contains_item_type(&inventory, SWORD.name()));
@@ -31,13 +31,13 @@ where
 /// Checks if a `Vec<ISlot>` contains an item with a matching name.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
 /// # use game_inventory::traits::{ISlot, IItem};
 /// # use game_inventory::helpers::inventory_contains_item;
 /// let inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(None),
 /// ];
 /// assert!(inventory_contains_item(
 ///     &inventory,
@@ -60,27 +60,27 @@ where
 /// Gets the total quantity of all items with a matching name.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH};
 /// # use game_inventory::traits::{ISlot, IItem};
 /// # use game_inventory::helpers::quant_in_inventory;
 /// let inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(TORCH_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_INST),
+///     DefaultSlot::new(None),
 /// ];
 /// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 123)
 /// ```
 /// If the item is unstackable, even if the item's amount is greater than one somehow,
 /// This method only counts it as one item.
 /// ```
-/// # use game_inventory::samples::{Slot, ItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD};
+/// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD};
 /// # use game_inventory::traits::{ISlot, IItem, IItemInstance};
 /// # use game_inventory::helpers::quant_in_inventory;
 /// let inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(Some(ItemInstance::new(&SWORD, 123))),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(Some(DefaultItemInstance::new(&SWORD, 123))),
 /// ];
 /// assert_eq!(quant_in_inventory(&inventory, SWORD.name()), 2)
 /// ```
@@ -108,15 +108,15 @@ where
 /// Gets the quantity of empty slots in an inventory.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
 /// # use game_inventory::traits::ISlot;
 /// # use game_inventory::helpers::empty_quant_in_inventory;
 /// let inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(None),
-///     Slot::new(TORCH_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(None),
+///     DefaultSlot::new(TORCH_INST),
+///     DefaultSlot::new(None),
 /// ];
 /// assert_eq!(empty_quant_in_inventory(&inventory), 2)
 /// ```
@@ -134,13 +134,13 @@ where
 /// Attempts to add an item to the given inventory.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH, SWORD};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH, SWORD};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(TORCH_INST),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_INST),
 /// ];
 /// add_to_inventory(&mut inventory, TORCH_INST.unwrap());
 /// assert!(inventory[0].item_instance().unwrap().item().name() == TORCH.name());
@@ -151,13 +151,13 @@ where
 /// ```
 /// Does not add the item to the given inventory if its full.
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, JUNK_INST};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, JUNK_INST};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
 /// ];
 ///
 /// let instances_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
@@ -169,13 +169,13 @@ where
 /// ```
 /// Also works for unstackable items.
 /// ```
-/// # use game_inventory::samples::{Slot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, SWORD};
+/// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, SWORD};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(None),
 /// ];
 /// add_to_inventory(&mut inventory, SWORD_INST.unwrap());
 /// assert!(inventory[0].item_instance().unwrap().item().name() == TORCH.name());
@@ -228,61 +228,61 @@ where
 /// index the `Vec<ISlot>`. This is only for bulk removal of items.
 ///
 /// ```
-/// # use game_inventory::samples::{Slot, ItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(TORCH_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_INST),
+///     DefaultSlot::new(None),
 /// ];
-/// assert!(remove_from_inventory(&mut inventory, ItemInstance::new(&TORCH, 123)).is_none());
+/// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 123)).is_none());
 /// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 0)
 /// ```
 /// Does not use unstackable items `.quant()` method, treats every unstackable item as one removal.
 /// ```
-/// # use game_inventory::samples::{Slot, ItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD, TORCH_INST};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(TORCH_INST),
-///     Slot::new(Some(ItemInstance::new(&SWORD, 123))),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_INST),
+///     DefaultSlot::new(Some(DefaultItemInstance::new(&SWORD, 123))),
 /// ];
-/// assert!(remove_from_inventory(&mut inventory, ItemInstance::new(&SWORD, 2)).is_none());
+/// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&SWORD, 2)).is_none());
 /// assert_eq!(quant_in_inventory(&inventory, SWORD.name()), 0);
 /// ```
 /// If the inventory does not have that may items to remove,
 /// this function will return the quantity it was unable to remove.
 /// ```
-/// # use game_inventory::samples::{Slot, ItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(None),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(None),
+///     DefaultSlot::new(None),
 /// ];
-/// let res = remove_from_inventory(&mut inventory, ItemInstance::new(&TORCH, 123)).unwrap();
+/// let res = remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 123)).unwrap();
 /// assert_eq!(res.item().name(), TORCH.name());
 /// assert_eq!(res.quant(), 23);
 /// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 0);
 /// ```
 /// Guarantees that items not requested to be removed will remain untouched.
 /// ```
-/// # use game_inventory::samples::{Slot, ItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
+/// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
 /// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
-///     Slot::new(TORCH_FULL_STACK_INST),
-///     Slot::new(SWORD_INST),
-///     Slot::new(TORCH_INST),
-///     Slot::new(None),
+///     DefaultSlot::new(TORCH_FULL_STACK_INST),
+///     DefaultSlot::new(SWORD_INST),
+///     DefaultSlot::new(TORCH_INST),
+///     DefaultSlot::new(None),
 /// ];
-/// assert!(remove_from_inventory(&mut inventory, ItemInstance::new(&TORCH, 100)).is_none());
+/// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 100)).is_none());
 /// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 23);
 /// ```
 pub fn remove_from_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>

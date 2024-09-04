@@ -1,5 +1,5 @@
 //! A framework for generalizing inventory logic and abstracting it away from
-//! item data in your specific game.  
+//! item data in your specific game.
 //!
 //! ## Design specifications
 //! - Everything should be interchangeable and as generic as possible.
@@ -16,8 +16,8 @@
 //!
 //! ## Overall architecture
 //!
-//! - `trait IItem` Item data that never changes, like how the item looks, its base damage, its description e.t.c.
-//! - `trait IItemInstance` Item data that changes between instances, like enchantments, how many you have, their durability, e.t.c.
+//! - `trait IItem` DefaultItem data that never changes, like how the item looks, its base damage, its description e.t.c.
+//! - `trait IItemInstance` DefaultItem data that changes between instances, like enchantments, how many you have, their durability, e.t.c.
 //! - `trait ISlot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.). Allows for binding to the UI via a callback function.
 //! - `Vec<ISlot>` Is the way an inventory is composed. There are builtin functions in `inventory_management` that can help manage the inventory.
 //!
@@ -25,18 +25,18 @@
 //!
 //! ```
 //! # use game_inventory::traits::{IItem, IItemInstance, ISlot};
-//! # use game_inventory::sample_structs::{ItemInstance, Slot};
+//! # use game_inventory::sample_structs::{DefaultItemInstance, DefaultSlot};
 //! # use game_inventory::helpers::add_to_inventory;
 //! // Define your item data however you like:
 //! #[derive(Debug)]
-//! pub struct Item<'a> {
+//! pub struct DefaultItem<'a> {
 //!     pub name: &'a str,
 //!     pub max_quantity: u16,
 //!     pub image: Option<Vec<(u8,u8,u8,u8)>>,
 //!     pub item_type: &'a str
 //! }
 //! // implement IItem for it so it can interact with the rest of the system.
-//! impl<'a> IItem for Item<'a> {
+//! impl<'a> IItem for DefaultItem<'a> {
 //!     fn stackable(&self) -> bool {
 //!         self.max_quantity > 1
 //!     }
@@ -50,15 +50,15 @@
 //!     }
 //! }
 //! // start using it in combination with everything else!
-//! const CHEESE: Item = Item{name:"Cheese", max_quantity:100, image:None, item_type:"Food"};
-//! const CHEESE_INST: Option<ItemInstance> = Some(ItemInstance{item:&CHEESE, quantity:32});
-//! const SWORD: Item = Item{name:"Sword", max_quantity:0, image:None, item_type:"Weapon"};
-//! const SWORD_INST: Option<ItemInstance> = Some(ItemInstance{item:&SWORD, quantity:0});
+//! const CHEESE: DefaultItem = DefaultItem{name:"Cheese", max_quantity:100, image:None, item_type:"Food"};
+//! const CHEESE_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance{item:&CHEESE, quantity:32});
+//! const SWORD: DefaultItem = DefaultItem{name:"Sword", max_quantity:0, image:None, item_type:"Weapon"};
+//! const SWORD_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance{item:&SWORD, quantity:0});
 //! let mut inventory = vec![
-//!     Slot::new(CHEESE_INST),
-//!     Slot::new(None),
-//!     Slot::new(None),
-//!     Slot::new(CHEESE_INST)
+//!     DefaultSlot::new(CHEESE_INST),
+//!     DefaultSlot::new(None),
+//!     DefaultSlot::new(None),
+//!     DefaultSlot::new(CHEESE_INST)
 //! ];
 //! add_to_inventory(&mut inventory, SWORD_INST.unwrap());
 //! assert_eq!(inventory[0].item_instance().unwrap().item().name(), CHEESE.name());

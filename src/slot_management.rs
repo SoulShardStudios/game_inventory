@@ -71,11 +71,11 @@ where
 /// Combines two stacks of items. Tries to put `items.0` into `items.1`.
 ///
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH, TORCH_INST};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH, TORCH_INST};
 /// # use game_inventory::traits::{IItem, IItemInstance};
 /// # use game_inventory::helpers::combine_stack;
 /// let items = (
-///     Some(ItemInstance {
+///     Some(DefaultItemInstance {
 ///         item: &TORCH,
 ///         quantity: 90,
 ///     }),
@@ -89,10 +89,10 @@ where
 /// ```
 /// You will not be able to combine the item stacks if:
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH_INST, SWORD_INST, JUNK_INST, TORCH_FULL_STACK_INST};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, SWORD_INST, JUNK_INST, TORCH_FULL_STACK_INST};
 /// # use game_inventory::slot_management::combine_stack;
 /// // Either item is None.
-/// assert!(combine_stack::<ItemInstance>((None, None,)).is_err());
+/// assert!(combine_stack::<DefaultItemInstance>((None, None,)).is_err());
 /// assert!(combine_stack((TORCH_INST, None,)).is_err());
 /// assert!(combine_stack((None, TORCH_INST,)).is_err());
 /// assert!(combine_stack((None, SWORD_INST)).is_err());
@@ -147,15 +147,15 @@ where
 /// Splits a stack of items into two. Tries to split `items.0` and put the second half into `items.1`
 ///
 /// ```
-/// # use game_inventory::samples::{TORCH, ItemInstance};
+/// # use game_inventory::samples::{TORCH, DefaultItemInstance};
 /// # use game_inventory::helpers::half_stack_split;
 /// # use game_inventory::traits::{IItem, IItemInstance};
 /// let res = half_stack_split((
-/// Some(ItemInstance {
+/// Some(DefaultItemInstance {
 ///     item: &TORCH,
 ///     quantity: 11,
 /// }),
-/// Some(ItemInstance {
+/// Some(DefaultItemInstance {
 ///     item: &TORCH,
 ///     quantity: 3,
 /// }),
@@ -224,11 +224,11 @@ where
 /// Removes a single item from a stack. Tries to take a single item from `items.0` and put it into `items.1`.
 ///
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{IItemInstance, IItem};
 /// let res = remove_from_stack((
-///     Some(ItemInstance {
+///     Some(DefaultItemInstance {
 ///         item: &TORCH,
 ///         quantity: 3,
 ///     }),
@@ -241,15 +241,15 @@ where
 /// ```
 /// Also accounts for the edge case of `items.0` having a quantity of `1`:
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{IItemInstance, IItem};
 /// let res = remove_from_stack((
-///     Some(ItemInstance {
+///     Some(DefaultItemInstance {
 ///         item: &TORCH,
 ///         quantity: 1,
 ///     }),
-///     Some(ItemInstance {
+///     Some(DefaultItemInstance {
 ///         item: &TORCH,
 ///         quantity: 20,
 ///     }),
@@ -260,11 +260,11 @@ where
 /// ```
 /// And accounts for `items.1` being `None`
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{IItemInstance, IItem};
 /// let res = remove_from_stack((
-///     Some(ItemInstance {
+///     Some(DefaultItemInstance {
 ///         item: &TORCH,
 ///         quantity: 3,
 ///     }),
@@ -277,7 +277,7 @@ where
 /// ```
 /// You will not be able to remove one from the stack if:
 /// ```
-/// # use game_inventory::samples::{ItemInstance, TORCH, TORCH_INST, TORCH_FULL_STACK_INST, SWORD_INST, JUNK_INST,};
+/// # use game_inventory::samples::{DefaultItemInstance, TORCH, TORCH_INST, TORCH_FULL_STACK_INST, SWORD_INST, JUNK_INST,};
 /// # use game_inventory::helpers::remove_from_stack;
 /// // items.0 is None.
 /// assert!(remove_from_stack((None, TORCH_FULL_STACK_INST)).is_err());
