@@ -16,15 +16,15 @@
 //!
 //! ## Overall architecture
 //!
-//! - `trait IItem` DefaultItem data that never changes, like how the item looks, its base damage, its description e.t.c.
-//! - `trait IItemInstance` DefaultItem data that changes between instances, like enchantments, how many you have, their durability, e.t.c.
-//! - `trait ISlot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.). Allows for binding to the UI via a callback function.
-//! - `Vec<ISlot>` Is the way an inventory is composed. There are builtin functions in `inventory_management` that can help manage the inventory.
+//! - `trait Item` DefaultItem data that never changes, like how the item looks, its base damage, its description e.t.c.
+//! - `trait ItemInstance` DefaultItem data that changes between instances, like enchantments, how many you have, their durability, e.t.c.
+//! - `trait Slot` Manages a single item instance. Good for binding user action to different types of instance modification (stack splitting, stack combining, e.t.c.). Allows for binding to the UI via a callback function.
+//! - `Vec<Slot>` Is the way an inventory is composed. There are builtin functions in `inventory_management` that can help manage the inventory.
 //!
 //! ## Basic example
 //!
 //! ```
-//! # use game_inventory::traits::{IItem, IItemInstance, ISlot};
+//! # use game_inventory::traits::{Item, ItemInstance, Slot};
 //! # use game_inventory::sample_structs::{DefaultItemInstance, DefaultSlot};
 //! # use game_inventory::helpers::add_to_inventory;
 //! // Define your item data however you like:
@@ -35,8 +35,8 @@
 //!     pub image: Option<Vec<(u8,u8,u8,u8)>>,
 //!     pub item_type: &'a str
 //! }
-//! // implement IItem for it so it can interact with the rest of the system.
-//! impl<'a> IItem for DefaultItem<'a> {
+//! // implement Item for it so it can interact with the rest of the system.
+//! impl<'a> Item for DefaultItem<'a> {
 //!     fn stackable(&self) -> bool {
 //!         self.max_quantity > 1
 //!     }

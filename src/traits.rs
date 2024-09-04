@@ -4,7 +4,7 @@ use crate::slot_management::swap;
 ///
 /// Static item data are things like the items name, the items base damage. Data
 /// about the item that does not change item stack to item stack should be stored here.
-pub trait IItem: std::fmt::Debug {
+pub trait Item: std::fmt::Debug {
     /// Whether the item can be put into stacks.
     /// A sword you may only want to have one of,
     /// While throwing knives may be stackable.
@@ -22,13 +22,13 @@ pub trait IItem: std::fmt::Debug {
 ///
 /// If you have two stacks of items, the quantity of items
 /// in each stack is stored separately. This is where you store that data.
-pub trait IItemInstance<'a> {
+pub trait ItemInstance<'a> {
     /// The quantity of items in this instance.
     fn quant(&self) -> u16;
     /// The item stored by this instance.
-    fn item(&self) -> &'a dyn IItem;
+    fn item(&self) -> &'a dyn Item;
     /// Creates a new item instance.
-    fn new(item: &'a dyn IItem, quantity: u16) -> Self;
+    fn new(item: &'a dyn Item, quantity: u16) -> Self;
 }
 /// Trait for defining an item slot.
 ///
@@ -36,7 +36,7 @@ pub trait IItemInstance<'a> {
 /// by which the player is able to modify the stored item instance, for example,
 /// restricting it to only be items where the item type is `ItemType::Armor`, this is the place to
 /// define that behavior for.
-pub trait ISlot<'a, II: IItemInstance<'a> + Sized> {
+pub trait Slot<'a, II: ItemInstance<'a> + Sized> {
     /// Get the item instance stored by this slot.
     fn item_instance(&self) -> Option<II>;
     /// Set the item instance stored by this slot.

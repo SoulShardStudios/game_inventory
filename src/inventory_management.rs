@@ -1,12 +1,12 @@
-//! A collection of generic functions that operate on a `Vec<ISlot>` (A collection of slots, AKA an inventory).
+//! A collection of generic functions that operate on a `Vec<Slot>` (A collection of slots, AKA an inventory).
 use crate::slot_management::{combine_stack, unwrap_items_res};
-use crate::traits::{IItemInstance, ISlot};
+use crate::traits::{ItemInstance, Slot};
 
-/// Checks if a `Vec<ISlot>` contains an item with a matching name and quantity.
+/// Checks if a `Vec<Slot>` contains an item with a matching name and quantity.
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH, SWORD, JUNK, TORCH_FULL_STACK_INST, SWORD_INST};
-/// # use game_inventory::traits::{ISlot, IItem};
+/// # use game_inventory::traits::{Slot, Item};
 /// # use game_inventory::helpers::inventory_contains_item_type;
 /// let inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -19,8 +19,8 @@ use crate::traits::{IItemInstance, ISlot};
 /// ```
 pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: II) -> bool
 where
-    II: IItemInstance<'a> + Copy,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy,
+    S: Slot<'a, II>,
 {
     inventory.iter().any(|s| match s.item_instance() {
         Some(i) => i.item().name() == other.item().name() && i.quant() == other.quant(),
@@ -28,11 +28,11 @@ where
     })
 }
 
-/// Checks if a `Vec<ISlot>` contains an item with a matching name.
+/// Checks if a `Vec<Slot>` contains an item with a matching name.
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
-/// # use game_inventory::traits::{ISlot, IItem};
+/// # use game_inventory::traits::{Slot, Item};
 /// # use game_inventory::helpers::inventory_contains_item;
 /// let inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -48,8 +48,8 @@ where
 /// ```
 pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
 where
-    II: IItemInstance<'a> + Copy,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy,
+    S: Slot<'a, II>,
 {
     inventory.iter().any(|s| match s.item_instance() {
         Some(i) => i.item().name() == name,
@@ -61,7 +61,7 @@ where
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH};
-/// # use game_inventory::traits::{ISlot, IItem};
+/// # use game_inventory::traits::{Slot, Item};
 /// # use game_inventory::helpers::quant_in_inventory;
 /// let inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -75,7 +75,7 @@ where
 /// This method only counts it as one item.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD};
-/// # use game_inventory::traits::{ISlot, IItem, IItemInstance};
+/// # use game_inventory::traits::{Slot, Item, ItemInstance};
 /// # use game_inventory::helpers::quant_in_inventory;
 /// let inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -86,8 +86,8 @@ where
 /// ```
 pub fn quant_in_inventory<'a, II, S>(inventory: &Vec<S>, name: &str) -> u16
 where
-    II: IItemInstance<'a> + Copy,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy,
+    S: Slot<'a, II>,
 {
     inventory
         .iter()
@@ -109,7 +109,7 @@ where
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST};
-/// # use game_inventory::traits::ISlot;
+/// # use game_inventory::traits::Slot;
 /// # use game_inventory::helpers::empty_quant_in_inventory;
 /// let inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -122,8 +122,8 @@ where
 /// ```
 pub fn empty_quant_in_inventory<'a, II, S>(inventory: &Vec<S>) -> usize
 where
-    II: IItemInstance<'a> + Copy,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy,
+    S: Slot<'a, II>,
 {
     inventory
         .iter()
@@ -135,7 +135,7 @@ where
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, TORCH, SWORD};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -152,7 +152,7 @@ where
 /// Does not add the item to the given inventory if its full.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH_INST, JUNK_INST};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -170,7 +170,7 @@ where
 /// Also works for unstackable items.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, SWORD};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::add_to_inventory;
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -185,16 +185,16 @@ where
 /// ```
 pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
 where
-    II: IItemInstance<'a> + Copy + 'a,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy + 'a,
+    S: Slot<'a, II>,
 {
     if inventory.capacity() == 0 {
         return None;
     }
     fn try_add_to_slot<'a, II, S>(other: Option<II>, slot: &mut S) -> Option<II>
     where
-        II: IItemInstance<'a> + Copy + 'a,
-        S: ISlot<'a, II>,
+        II: ItemInstance<'a> + Copy + 'a,
+        S: Slot<'a, II>,
     {
         let c = match other {
             None => return None,
@@ -225,11 +225,11 @@ where
 /// Attempts to remove an item from the given inventory.
 ///
 /// If you are trying to remove an item from a specific slot,
-/// index the `Vec<ISlot>`. This is only for bulk removal of items.
+/// index the `Vec<Slot>`. This is only for bulk removal of items.
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -243,7 +243,7 @@ where
 /// Does not use unstackable items `.quant()` method, treats every unstackable item as one removal.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, SWORD, TORCH_INST};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -258,7 +258,7 @@ where
 /// this function will return the quantity it was unable to remove.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -274,7 +274,7 @@ where
 /// Guarantees that items not requested to be removed will remain untouched.
 /// ```
 /// # use game_inventory::samples::{DefaultSlot, DefaultItemInstance, TORCH_FULL_STACK_INST, SWORD_INST, TORCH, TORCH_INST};
-/// # use game_inventory::traits::{ISlot, IItemInstance, IItem};
+/// # use game_inventory::traits::{Slot, ItemInstance, Item};
 /// # use game_inventory::helpers::{quant_in_inventory, remove_from_inventory};
 /// let mut inventory = vec![
 ///     DefaultSlot::new(TORCH_FULL_STACK_INST),
@@ -287,13 +287,13 @@ where
 /// ```
 pub fn remove_from_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
 where
-    II: IItemInstance<'a> + Copy + 'a,
-    S: ISlot<'a, II>,
+    II: ItemInstance<'a> + Copy + 'a,
+    S: Slot<'a, II>,
 {
     fn try_remove<'a, II, S>(current: u16, slot: &mut S, other: &II) -> u16
     where
-        II: IItemInstance<'a> + Copy + 'a,
-        S: ISlot<'a, II>,
+        II: ItemInstance<'a> + Copy + 'a,
+        S: Slot<'a, II>,
     {
         let s = match slot.item_instance() {
             None => return current,

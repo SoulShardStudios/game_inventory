@@ -1,4 +1,4 @@
-//! A collection of generic functions to use in `ISlot.transfer`.
+//! A collection of generic functions to use in `Slot.transfer`.
 //!
 //! All methods, if they edit the item values, try to transfer
 //! the items from `items.0` to `items.1`.
@@ -19,7 +19,7 @@ pub type Items<II> = (Option<II>, Option<II>);
 pub type ItemsRes<'a, II> = Result<Items<II>, (&'a str, Items<II>)>;
 
 /// Returns the inverse of the two inputs, specifically `(items.1, items.0)`.
-pub fn swap<'a, II: traits::IItemInstance<'a>>(
+pub fn swap<'a, II: traits::ItemInstance<'a>>(
     items: (Option<II>, Option<II>),
 ) -> (Option<II>, Option<II>) {
     (items.1, items.0)
@@ -30,7 +30,7 @@ pub fn swap<'a, II: traits::IItemInstance<'a>>(
 /// ```
 /// # use game_inventory::samples::TORCH_INST;
 /// # use game_inventory::helpers::{combine_stack, swap_if_err};
-/// # use game_inventory::traits::{IItem, IItemInstance};
+/// # use game_inventory::traits::{Item, ItemInstance};
 /// let items = (TORCH_INST, None);
 /// let unwrapped = swap_if_err(combine_stack(items));
 /// assert_eq!(items.1.is_none(), unwrapped.0.is_none());
@@ -39,7 +39,7 @@ pub fn swap<'a, II: traits::IItemInstance<'a>>(
 /// ```
 pub fn swap_if_err<'a, II>(items: ItemsRes<II>) -> Items<II>
 where
-    II: traits::IItemInstance<'a>,
+    II: traits::ItemInstance<'a>,
 {
     match items {
         Ok(inner) => inner,
@@ -52,7 +52,7 @@ where
 /// ```
 /// # use game_inventory::samples::TORCH_INST;
 /// # use game_inventory::helpers::{combine_stack, unwrap_items_res};
-/// # use game_inventory::traits::{IItem, IItemInstance};
+/// # use game_inventory::traits::{Item, ItemInstance};
 /// let items = (TORCH_INST, None);
 /// let unwrapped = unwrap_items_res(combine_stack(items));
 /// assert_eq!(items.0.unwrap().item().name(), unwrapped.0.unwrap().item().name());
@@ -61,7 +61,7 @@ where
 /// ```
 pub fn unwrap_items_res<'a, II>(items: ItemsRes<II>) -> Items<II>
 where
-    II: traits::IItemInstance<'a>,
+    II: traits::ItemInstance<'a>,
 {
     match items {
         Ok(inner) => inner,
@@ -72,7 +72,7 @@ where
 ///
 /// ```
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH, TORCH_INST};
-/// # use game_inventory::traits::{IItem, IItemInstance};
+/// # use game_inventory::traits::{Item, ItemInstance};
 /// # use game_inventory::helpers::combine_stack;
 /// let items = (
 ///     Some(DefaultItemInstance {
@@ -106,7 +106,7 @@ where
 /// ```
 pub fn combine_stack<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
+    II: traits::ItemInstance<'a> + Copy + 'a,
 {
     let (c, o) = match items {
         (Some(c), Some(o)) => (c, o),
@@ -149,7 +149,7 @@ where
 /// ```
 /// # use game_inventory::samples::{TORCH, DefaultItemInstance};
 /// # use game_inventory::helpers::half_stack_split;
-/// # use game_inventory::traits::{IItem, IItemInstance};
+/// # use game_inventory::traits::{Item, ItemInstance};
 /// let res = half_stack_split((
 /// Some(DefaultItemInstance {
 ///     item: &TORCH,
@@ -180,7 +180,7 @@ where
 /// ```
 pub fn half_stack_split<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
+    II: traits::ItemInstance<'a> + Copy + 'a,
 {
     let c = match items.0 {
         Some(c) => c,
@@ -226,7 +226,7 @@ where
 /// ```
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
-/// # use game_inventory::traits::{IItemInstance, IItem};
+/// # use game_inventory::traits::{ItemInstance, Item};
 /// let res = remove_from_stack((
 ///     Some(DefaultItemInstance {
 ///         item: &TORCH,
@@ -243,7 +243,7 @@ where
 /// ```
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
-/// # use game_inventory::traits::{IItemInstance, IItem};
+/// # use game_inventory::traits::{ItemInstance, Item};
 /// let res = remove_from_stack((
 ///     Some(DefaultItemInstance {
 ///         item: &TORCH,
@@ -262,7 +262,7 @@ where
 /// ```
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
-/// # use game_inventory::traits::{IItemInstance, IItem};
+/// # use game_inventory::traits::{ItemInstance, Item};
 /// let res = remove_from_stack((
 ///     Some(DefaultItemInstance {
 ///         item: &TORCH,
@@ -290,7 +290,7 @@ where
 /// ```
 pub fn remove_from_stack<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
 where
-    II: traits::IItemInstance<'a> + Copy + 'a,
+    II: traits::ItemInstance<'a> + Copy + 'a,
 {
     let c = match items.0 {
         Some(c) => c,

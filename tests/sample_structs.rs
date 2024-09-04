@@ -1,5 +1,5 @@
 use game_inventory::samples::{DefaultItemInstance, DefaultSlot, TORCH_INST};
-use game_inventory::traits::ISlot;
+use game_inventory::traits::Slot;
 mod modified {
     use super::*;
 

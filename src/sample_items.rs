@@ -21,7 +21,7 @@ pub const JUNK: DefaultItem = DefaultItem {
 
 /// A simple unstackable item.
 /// It is unstackable because in the impl
-/// for IItem, `stackable()` is just `self.max_quantity > 1`.
+/// for Item, `stackable()` is just `self.max_quantity > 1`.
 /// if its 0, that means it cannot be stacked with other items.
 pub const SWORD: DefaultItem = DefaultItem {
     name: "sword",

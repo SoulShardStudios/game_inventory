@@ -8,7 +8,7 @@ See more examples and specific documentation about this crate on [docs.rs](https
 ## Basic usage
 
 ```rs
-use game_inventory::traits::{IItem, IItemInstance, ISlot};
+use game_inventory::traits::{Item, ItemInstance, Slot};
 use game_inventory::sample_structs::{DefaultItemInstance, DefaultSlot};
 use game_inventory::helpers::add_to_inventory;
 // Define your item data however you like.
@@ -19,8 +19,8 @@ pub struct DefaultItem<'a> {
     pub image: Option<Vec<(u8,u8,u8,u8)>>,
     pub item_type: &'a str
 }
-// implement IItem for it so it can interact with the rest of the system.
-impl<'a> IItem for DefaultItem<'a> {
+// implement Item for it so it can interact with the rest of the system.
+impl<'a> Item for DefaultItem<'a> {
     fn stackable(&self) -> bool {
         self.max_quantity > 1
     }
