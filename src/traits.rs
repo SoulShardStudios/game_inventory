@@ -1,10 +1,12 @@
 //! All traits that are needed to interface with the inventory system.
+
 use crate::slot_management::swap;
 /// Trait for defining what static item data is necessary for the inventory system.
 ///
 /// Static item data are things like the items name, the items base damage. Data
 /// about the item that does not change item stack to item stack should be stored here.
 pub trait Item: std::fmt::Debug {
+    type Id: Eq;
     /// Whether the item can be put into stacks.
     /// A sword you may only want to have one of,
     /// While throwing knives may be stackable.
@@ -12,23 +14,20 @@ pub trait Item: std::fmt::Debug {
     /// The maximum quantity of a stack. This does not matter
     /// for non stackable items.
     fn max_quant(&self) -> u16;
-    /// The name of the item. Make sure item names are unique,
-    /// as this inventory system makes that assumption. If this
-    /// is not feasible for you, you can make a display_name
-    /// variable to show in the UI, and put your unique name here.
-    fn name(&self) -> &str;
+    /// The Unique ID of the item
+    fn id(&self) -> Self::Id;
 }
 /// Trait for storing item instance data.
 ///
 /// If you have two stacks of items, the quantity of items
 /// in each stack is stored separately. This is where you store that data.
-pub trait ItemInstance<'a> {
+pub trait ItemInstance<'a, I: Item> {
     /// The quantity of items in this instance.
     fn quant(&self) -> u16;
     /// The item stored by this instance.
-    fn item(&self) -> &'a dyn Item;
+    fn item(&self) -> &'a I;
     /// Creates a new item instance.
-    fn new(item: &'a dyn Item, quantity: u16) -> Self;
+    fn new(item: &'a I, quantity: u16) -> Self;
 }
 /// Trait for defining an item slot.
 ///
@@ -36,7 +35,7 @@ pub trait ItemInstance<'a> {
 /// by which the player is able to modify the stored item instance, for example,
 /// restricting it to only be items where the item type is `ItemType::Armor`, this is the place to
 /// define that behavior for.
-pub trait Slot<'a, II: ItemInstance<'a> + Sized> {
+pub trait Slot<'a, I: Item, II: ItemInstance<'a, I> + Sized> {
     /// Get the item instance stored by this slot.
     fn item_instance(&self) -> Option<II>;
     /// Set the item instance stored by this slot.
