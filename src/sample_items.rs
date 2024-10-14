@@ -5,8 +5,6 @@
 //! so that you can test that items with different names
 //! do not combine together or any other weird behavior.
 
-use std::sync::Arc;
-
 use crate::sample_structs::{DefaultItem, DefaultItemInstance};
 
 /// A simple stackable item.
