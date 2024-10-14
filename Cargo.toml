@@ -1,6 +1,6 @@
 [package]
 name = "game_inventory"
-version = "0.2.2"
+version = "1.0.0"
 edition = "2021"
 description = "An inventory system independant of item data."
 license = "MIT"
