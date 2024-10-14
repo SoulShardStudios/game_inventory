@@ -2,7 +2,19 @@
 //!
 //! All methods, if they edit the item values, try to transfer
 //! the items from `items.0` to `items.1`.
-use crate::traits;
+use crate::traits::{Item, ItemInstance};
+use std::{error::Error, fmt::Display};
+
+#[derive(Debug)]
+struct SlotErr(String);
+
+impl Display for SlotErr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl Error for SlotErr {}
 
 /// Two item instances to represent slot to slot interaction.
 ///
@@ -16,10 +28,10 @@ pub type Items<II> = (Option<II>, Option<II>);
 /// For example, you cannot combine two stacks if they are different items
 /// Therefore you need to choose a fallback for what happens next.
 /// Personally, swapping them has worked for me in my games.
-pub type ItemsRes<'a, II> = Result<Items<II>, (&'a str, Items<II>)>;
+pub type ItemsRes<II> = Result<Items<II>, (Box<dyn std::error::Error>, Items<II>)>;
 
 /// Returns the inverse of the two inputs, specifically `(items.1, items.0)`.
-pub fn swap<'a, II: traits::ItemInstance<'a>>(
+pub fn swap<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
     items: (Option<II>, Option<II>),
 ) -> (Option<II>, Option<II>) {
     (items.1, items.0)
@@ -32,15 +44,14 @@ pub fn swap<'a, II: traits::ItemInstance<'a>>(
 /// # use game_inventory::helpers::{combine_stack, swap_if_err};
 /// # use game_inventory::traits::{Item, ItemInstance};
 /// let items = (TORCH_INST, None);
-/// let unwrapped = swap_if_err(combine_stack(items));
+/// let unwrapped = swap_if_err(combine_stack(items.clone()));
 /// assert_eq!(items.1.is_none(), unwrapped.0.is_none());
-/// assert_eq!(items.0.unwrap().item().name(), unwrapped.1.unwrap().item().name());
-/// assert_eq!(items.0.unwrap().quant(), unwrapped.1.unwrap().quant());
+/// assert_eq!(items.0.as_ref().unwrap().item().id(), unwrapped.1.as_ref().unwrap().item().id());
+/// assert_eq!(items.0.as_ref().unwrap().quant(), unwrapped.1.unwrap().quant());
 /// ```
-pub fn swap_if_err<'a, II>(items: ItemsRes<II>) -> Items<II>
-where
-    II: traits::ItemInstance<'a>,
-{
+pub fn swap_if_err<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
+    items: ItemsRes<II>,
+) -> Items<II> {
     match items {
         Ok(inner) => inner,
         Err(inner) => swap(inner.1),
@@ -54,15 +65,14 @@ where
 /// # use game_inventory::helpers::{combine_stack, unwrap_items_res};
 /// # use game_inventory::traits::{Item, ItemInstance};
 /// let items = (TORCH_INST, None);
-/// let unwrapped = unwrap_items_res(combine_stack(items));
-/// assert_eq!(items.0.unwrap().item().name(), unwrapped.0.unwrap().item().name());
+/// let unwrapped = unwrap_items_res(combine_stack(items.clone()));
+/// assert_eq!(items.0.as_ref().unwrap().item().id(), unwrapped.0.as_ref().unwrap().item().id());
 /// assert_eq!(items.0.unwrap().quant(), unwrapped.0.unwrap().quant());
 /// assert_eq!(items.1.is_none(), unwrapped.1.is_none());
 /// ```
-pub fn unwrap_items_res<'a, II>(items: ItemsRes<II>) -> Items<II>
-where
-    II: traits::ItemInstance<'a>,
-{
+pub fn unwrap_items_res<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
+    items: ItemsRes<II>,
+) -> Items<II> {
     match items {
         Ok(inner) => inner,
         Err(inner) => inner.1,
@@ -82,17 +92,17 @@ where
 ///     TORCH_INST,
 /// );
 /// let res = combine_stack(items).ok().unwrap();
-/// assert_eq!(res.0.unwrap().item().name(),TORCH.name());
+/// assert_eq!(res.0.clone().unwrap().item().id(),TORCH.id());
 /// assert_eq!(res.0.unwrap().quant(),13);
-/// assert_eq!(res.1.unwrap().item().name(),TORCH.name());
+/// assert_eq!(res.1.clone().unwrap().item().id(),TORCH.id());
 /// assert_eq!(res.1.unwrap().quant(),100);
 /// ```
 /// You will not be able to combine the item stacks if:
 /// ```
-/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, SWORD_INST, JUNK_INST, TORCH_FULL_STACK_INST};
+/// # use game_inventory::samples::{DefaultItemInstance, DefaultItem, TORCH_INST, SWORD_INST, JUNK_INST, TORCH_FULL_STACK_INST};
 /// # use game_inventory::slot_management::combine_stack;
 /// // Either item is None.
-/// assert!(combine_stack::<DefaultItemInstance>((None, None,)).is_err());
+/// assert!(combine_stack::<'static, &'static str, DefaultItem<'static>, DefaultItemInstance<'static, DefaultItem<'static>>>((None, None,)).is_err());
 /// assert!(combine_stack((TORCH_INST, None,)).is_err());
 /// assert!(combine_stack((None, TORCH_INST,)).is_err());
 /// assert!(combine_stack((None, SWORD_INST)).is_err());
@@ -104,32 +114,40 @@ where
 /// assert!(combine_stack((TORCH_FULL_STACK_INST, TORCH_INST)).is_err());
 /// assert!(combine_stack((TORCH_INST, TORCH_FULL_STACK_INST)).is_err());
 /// ```
-pub fn combine_stack<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
-where
-    II: traits::ItemInstance<'a> + Copy + 'a,
-{
-    let (c, o) = match items {
+pub fn combine_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+    items: Items<II>,
+) -> ItemsRes<II> {
+    let (c, o) = match &items {
         (Some(c), Some(o)) => (c, o),
         _ => {
             return Err((
-                "Both items need to be Some for this operation to work.",
+                Box::new(SlotErr(
+                    "Both items need to be Some for this operation to work.".to_owned(),
+                )),
                 items,
             ))
         }
     };
     if !c.item().stackable() {
-        return Err(("Cannot combine unstackable items.", items));
-    }
-    if c.item().name() != o.item().name() {
         return Err((
-            "Both items must be the same for this operation to work.",
+            Box::new(SlotErr("Cannot combine unstackable items.".to_owned())),
+            items,
+        ));
+    }
+    if c.item().id() != o.item().id() {
+        return Err((
+            Box::new(SlotErr(
+                "Both items must be the same for this operation to work.".to_owned(),
+            )),
             items,
         ));
     }
     let stack_size = c.item().max_quant();
     if c.quant() >= stack_size || o.quant() >= stack_size {
         return Err((
-            "Cannot combine stacks when the stack amount is reached on an item.",
+            Box::new(SlotErr(
+                "Cannot combine stacks when the stack amount is reached on an item.".to_owned(),
+            )),
             items,
         ));
     }
@@ -160,9 +178,9 @@ where
 ///     quantity: 3,
 /// }),
 /// )).ok().unwrap();
-/// assert!(res.0.unwrap().item().name() == TORCH.name());
+/// assert!(res.0.as_ref().unwrap().item().id() == TORCH.id());
 /// assert!(res.0.unwrap().quant() == 5);
-/// assert!(res.1.unwrap().item().name() == TORCH.name());
+/// assert!(res.1.as_ref().unwrap().item().id() == TORCH.id());
 /// assert!(res.1.unwrap().quant() == 9);
 /// ```
 /// You will not be able to split the stack in half if:
@@ -178,32 +196,44 @@ where
 /// assert!(half_stack_split((TORCH_INST, JUNK_INST)).is_err());
 /// assert!(half_stack_split((JUNK_INST, TORCH_INST)).is_err());
 /// ```
-pub fn half_stack_split<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
-where
-    II: traits::ItemInstance<'a> + Copy + 'a,
-{
-    let c = match items.0 {
+pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+    items: Items<II>,
+) -> ItemsRes<II> {
+    let c = match &items.0 {
         Some(c) => c,
-        None => return Err(("items.0 must be Some for this operation to work.", items)),
+        None => {
+            return Err((
+                Box::new(SlotErr(
+                    "items.0 must be Some for this operation to work.".to_owned(),
+                )),
+                items,
+            ))
+        }
     };
     if !c.item().stackable() {
         return Err((
-            "items.0 must be stackable for this operation to work",
+            Box::new(SlotErr(
+                "items.0 must be stackable for this operation to work".to_owned(),
+            )),
             items,
         ));
     }
-    if match items.1 {
-        Some(o) => c.item().name() != o.item().name(),
+    if match &items.1 {
+        Some(o) => c.item().id() != o.item().id(),
         None => false,
     } {
         return Err((
-            "Both items must be the same for this operation to work.",
+            Box::new(SlotErr(
+                "Both items must be the same for this operation to work.".to_owned(),
+            )),
             items,
         ));
     }
     if c.quant() < 2 {
         return Err((
-            "items.0 has 1 item in its stack. This cannot be split in two.",
+            Box::new(SlotErr(
+                "items.0 has 1 item in its stack. This cannot be split in two.".to_owned(),
+            )),
             items,
         ));
     }
@@ -234,10 +264,10 @@ where
 ///     }),
 ///     TORCH_INST,
 /// )).ok().unwrap();
-/// assert!(res.0.unwrap().item().name() == TORCH.name());
-/// assert!(res.0.unwrap().quant() == 2);
-/// assert!(res.1.unwrap().item().name() == TORCH.name());
-/// assert!(res.1.unwrap().quant() == 24);
+/// assert!(res.0.as_ref().unwrap().item().id() == TORCH.id());
+/// assert!(res.0.as_ref().unwrap().quant() == 2);
+/// assert!(res.1.as_ref().unwrap().item().id() == TORCH.id());
+/// assert!(res.1.as_ref().unwrap().quant() == 24);
 /// ```
 /// Also accounts for the edge case of `items.0` having a quantity of `1`:
 /// ```
@@ -254,7 +284,7 @@ where
 ///         quantity: 20,
 ///     }),
 /// )).ok().unwrap();
-/// assert!(res.1.unwrap().item().name() == TORCH.name());
+/// assert!(res.1.clone().unwrap().item().id() == TORCH.id());
 /// assert!(res.1.unwrap().quant() == 21);
 /// assert!(res.0.is_none());
 /// ```
@@ -270,9 +300,9 @@ where
 ///     }),
 ///     None,
 /// )).ok().unwrap();
-/// assert!(res.0.unwrap().item().name() == TORCH.name());
+/// assert!(res.0.as_ref().unwrap().item().id() == TORCH.id());
 /// assert!(res.0.unwrap().quant() == 2);
-/// assert!(res.1.unwrap().item().name() == TORCH.name());
+/// assert!(res.1.as_ref().unwrap().item().id() == TORCH.id());
 /// assert!(res.1.unwrap().quant() == 1);
 /// ```
 /// You will not be able to remove one from the stack if:
@@ -288,21 +318,29 @@ where
 /// assert!(remove_from_stack((TORCH_INST, JUNK_INST)).is_err());
 /// assert!(remove_from_stack((JUNK_INST, TORCH_INST)).is_err());
 /// ```
-pub fn remove_from_stack<'a, II>(items: Items<II>) -> ItemsRes<'a, II>
-where
-    II: traits::ItemInstance<'a> + Copy + 'a,
-{
-    let c = match items.0 {
+pub fn remove_from_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+    items: Items<II>,
+) -> ItemsRes<II> {
+    let c = match &items.0 {
         Some(c) => c,
-        None => return Err(("items.0 must be Some for this operation to work.", items)),
+        None => {
+            return Err((
+                Box::new(SlotErr(
+                    "items.0 must be Some for this operation to work.".to_owned(),
+                )),
+                items,
+            ))
+        }
     };
     if !c.item().stackable() {
         return Err((
-            "items.0 must be stackable for this operation to work",
+            Box::new(SlotErr(
+                "items.0 must be stackable for this operation to work".to_owned(),
+            )),
             items,
         ));
     }
-    let o = match items.1 {
+    let o = match &items.1 {
         Some(o) => o,
         None => {
             if c.quant() < 2 {
@@ -314,14 +352,21 @@ where
             ));
         }
     };
-    if o.item().name() != c.item().name() {
+    if o.item().id() != c.item().id() {
         return Err((
-            "Both items must be the same for this operation to work.",
+            Box::new(SlotErr(
+                "Both items must be the same for this operation to work.".to_owned(),
+            )),
             items,
         ));
     }
     if o.quant() >= o.item().max_quant() {
-        return Err(("Cannot add to other as it is the max quantity", items));
+        return Err((
+            Box::new(SlotErr(
+                "Cannot add to other as it is the max quantity".to_owned(),
+            )),
+            items,
+        ));
     }
     if c.quant() < 2 {
         return Ok((None, Some(II::new(o.item(), o.quant() + 1))));

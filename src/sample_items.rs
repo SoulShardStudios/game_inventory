@@ -5,6 +5,8 @@
 //! so that you can test that items with different names
 //! do not combine together or any other weird behavior.
 
+use std::sync::Arc;
+
 use crate::sample_structs::{DefaultItem, DefaultItemInstance};
 
 /// A simple stackable item.
@@ -29,25 +31,26 @@ pub const SWORD: DefaultItem = DefaultItem {
 };
 
 /// An DefaultItemInstance of the sword item for testing slot and inventory management.
-pub const SWORD_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance {
+pub const SWORD_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance {
     item: &SWORD,
     quantity: 0,
 });
 
 /// An DefaultItemInstance of the junk item for testing slot and inventory management.
-pub const JUNK_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance {
+pub const JUNK_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance {
     item: &JUNK,
     quantity: 91,
 });
 
 /// An DefaultItemInstance of the torch item for testing slot and inventory management.
-pub const TORCH_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance {
+pub const TORCH_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance {
     item: &TORCH,
     quantity: 23,
 });
 
 /// An DefaultItemInstance of the torch that has a full stack, as `self.quantity == self.item.max_quant()`
-pub const TORCH_FULL_STACK_INST: Option<DefaultItemInstance> = Some(DefaultItemInstance {
-    item: &TORCH,
-    quantity: 100,
-});
+pub const TORCH_FULL_STACK_INST: Option<DefaultItemInstance<DefaultItem>> =
+    Some(DefaultItemInstance {
+        item: &TORCH,
+        quantity: 100,
+    });

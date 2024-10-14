@@ -1,6 +1,6 @@
 //! A collection of generic functions that operate on a `Vec<Slot>` (A collection of slots, AKA an inventory).
 use crate::slot_management::{combine_stack, unwrap_items_res};
-use crate::traits::{ItemInstance, Slot};
+use crate::traits::{Item, ItemInstance, Slot};
 
 /// Checks if a `Vec<Slot>` contains an item with a matching name and quantity.
 ///
@@ -13,17 +13,22 @@ use crate::traits::{ItemInstance, Slot};
 ///     DefaultSlot::new(SWORD_INST),
 ///     DefaultSlot::new(None),
 /// ];
-/// assert!(inventory_contains_item_type(&inventory, TORCH.name()));
-/// assert!(inventory_contains_item_type(&inventory, SWORD.name()));
-/// assert!(!inventory_contains_item_type(&inventory, JUNK.name()));
+/// assert!(inventory_contains_item_type(&inventory, TORCH.id()));
+/// assert!(inventory_contains_item_type(&inventory, SWORD.id()));
+/// assert!(!inventory_contains_item_type(&inventory, JUNK.id()));
 /// ```
-pub fn inventory_contains_item<'a, II, S>(inventory: &Vec<S>, other: II) -> bool
-where
-    II: ItemInstance<'a> + Copy,
-    S: Slot<'a, II>,
-{
+pub fn inventory_contains_item<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I>,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &Vec<S>,
+    other: II,
+) -> bool {
     inventory.iter().any(|s| match s.item_instance() {
-        Some(i) => i.item().name() == other.item().name() && i.quant() == other.quant(),
+        Some(i) => i.item().id() == other.item().id() && i.quant() == other.quant(),
         None => false,
     })
 }
@@ -46,13 +51,18 @@ where
 /// assert!(inventory_contains_item(&inventory, SWORD_INST.unwrap()));
 /// assert!(!inventory_contains_item(&inventory, TORCH_INST.unwrap()));
 /// ```
-pub fn inventory_contains_item_type<'a, II, S>(inventory: &Vec<S>, name: &str) -> bool
-where
-    II: ItemInstance<'a> + Copy,
-    S: Slot<'a, II>,
-{
+pub fn inventory_contains_item_type<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I>,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &Vec<S>,
+    id: Id,
+) -> bool {
     inventory.iter().any(|s| match s.item_instance() {
-        Some(i) => i.item().name() == name,
+        Some(i) => i.item().id() == id,
         None => false,
     })
 }
@@ -69,7 +79,7 @@ where
 ///     DefaultSlot::new(TORCH_INST),
 ///     DefaultSlot::new(None),
 /// ];
-/// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 123)
+/// assert_eq!(quant_in_inventory(&inventory, TORCH.id()), 123)
 /// ```
 /// If the item is unstackable, even if the item's amount is greater than one somehow,
 /// This method only counts it as one item.
@@ -82,18 +92,23 @@ where
 ///     DefaultSlot::new(SWORD_INST),
 ///     DefaultSlot::new(Some(DefaultItemInstance::new(&SWORD, 123))),
 /// ];
-/// assert_eq!(quant_in_inventory(&inventory, SWORD.name()), 2)
+/// assert_eq!(quant_in_inventory(&inventory, SWORD.id()), 2)
 /// ```
-pub fn quant_in_inventory<'a, II, S>(inventory: &Vec<S>, name: &str) -> u16
-where
-    II: ItemInstance<'a> + Copy,
-    S: Slot<'a, II>,
-{
+pub fn quant_in_inventory<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I>,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &Vec<S>,
+    id: Id,
+) -> u16 {
     inventory
         .iter()
         .fold(0, |quant, slot| match slot.item_instance() {
             Some(ii) => {
-                if ii.item().name() == name {
+                if ii.item().id() == id {
                     if ii.item().stackable() {
                         return ii.quant() + quant;
                     }
@@ -120,11 +135,15 @@ where
 /// ];
 /// assert_eq!(empty_quant_in_inventory(&inventory), 2)
 /// ```
-pub fn empty_quant_in_inventory<'a, II, S>(inventory: &Vec<S>) -> usize
-where
-    II: ItemInstance<'a> + Copy,
-    S: Slot<'a, II>,
-{
+pub fn empty_quant_in_inventory<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I>,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &Vec<S>,
+) -> usize {
     inventory
         .iter()
         .filter(|slot| slot.item_instance().is_none())
@@ -143,10 +162,10 @@ where
 ///     DefaultSlot::new(TORCH_INST),
 /// ];
 /// add_to_inventory(&mut inventory, TORCH_INST.unwrap());
-/// assert!(inventory[0].item_instance().unwrap().item().name() == TORCH.name());
+/// assert!(inventory[0].item_instance().unwrap().item().id() == TORCH.id());
 /// assert!(inventory[0].item_instance().unwrap().quant() == TORCH.max_quant());
-/// assert!(inventory[1].item_instance().unwrap().item().name() == SWORD.name());
-/// assert!(inventory[2].item_instance().unwrap().item().name() == TORCH.name());
+/// assert!(inventory[1].item_instance().unwrap().item().id() == SWORD.id());
+/// assert!(inventory[2].item_instance().unwrap().item().id() == TORCH.id());
 /// assert!(inventory[2].item_instance().unwrap().quant() == TORCH_INST.unwrap().quant() * 2);
 /// ```
 /// Does not add the item to the given inventory if its full.
@@ -162,9 +181,9 @@ where
 ///
 /// let instances_to_test = vec![TORCH_INST, TORCH_FULL_STACK_INST, JUNK_INST, SWORD_INST];
 /// instances_to_test.iter().for_each(|inst| {
-/// let res = add_to_inventory(&mut inventory, inst.unwrap());
-/// assert!(res.unwrap().item().name() == inst.unwrap().item().name());
-/// assert!(res.unwrap().quant() == inst.unwrap().quant());
+/// let res = add_to_inventory(&mut inventory, inst.clone().unwrap());
+/// assert!(res.as_ref().unwrap().item().id() == inst.as_ref().unwrap().item().id());
+/// assert!(res.unwrap().quant() == inst.as_ref().unwrap().quant());
 /// });
 /// ```
 /// Also works for unstackable items.
@@ -178,25 +197,35 @@ where
 ///     DefaultSlot::new(None),
 /// ];
 /// add_to_inventory(&mut inventory, SWORD_INST.unwrap());
-/// assert!(inventory[0].item_instance().unwrap().item().name() == TORCH.name());
+/// assert!(inventory[0].item_instance().unwrap().item().id() == TORCH.id());
 /// assert!(inventory[0].item_instance().unwrap().quant() == TORCH.max_quant());
-/// assert!(inventory[1].item_instance().unwrap().item().name() == SWORD.name());
-/// assert!(inventory[2].item_instance().unwrap().item().name() == SWORD.name());
+/// assert!(inventory[1].item_instance().unwrap().item().id() == SWORD.id());
+/// assert!(inventory[2].item_instance().unwrap().item().id() == SWORD.id());
 /// ```
-pub fn add_to_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
-where
-    II: ItemInstance<'a> + Copy + 'a,
-    S: Slot<'a, II>,
-{
+pub fn add_to_inventory<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I> + Clone,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &mut Vec<S>,
+    other: II,
+) -> Option<II> {
     if inventory.capacity() == 0 {
         return None;
     }
-    fn try_add_to_slot<'a, II, S>(other: Option<II>, slot: &mut S) -> Option<II>
-    where
-        II: ItemInstance<'a> + Copy + 'a,
-        S: Slot<'a, II>,
-    {
-        let c = match other {
+    fn try_add_to_slot<
+        'a,
+        Id: Eq,
+        I: Item<Id = Id> + 'a,
+        II: ItemInstance<'a, I> + Clone,
+        S: Slot<'a, I, II>,
+    >(
+        other: Option<II>,
+        slot: &mut S,
+    ) -> Option<II> {
+        let c = match &other {
             None => return None,
             Some(c) => c,
         };
@@ -209,13 +238,13 @@ where
             Some(s) => s,
         };
 
-        if s.item().name() != c.item().name() {
+        if s.item().id() != c.item().id() {
             return other;
         }
         if s.quant() == s.item().max_quant() {
             return other;
         }
-        let res = unwrap_items_res(combine_stack((slot.item_instance(), Some(c))));
+        let res = unwrap_items_res(combine_stack((slot.item_instance(), Some(c.clone()))));
         slot.set_item_instance(&res.1);
         return res.0;
     }
@@ -238,7 +267,7 @@ where
 ///     DefaultSlot::new(None),
 /// ];
 /// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 123)).is_none());
-/// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 0)
+/// assert_eq!(quant_in_inventory(&inventory, TORCH.id()), 0)
 /// ```
 /// Does not use unstackable items `.quant()` method, treats every unstackable item as one removal.
 /// ```
@@ -252,7 +281,7 @@ where
 ///     DefaultSlot::new(Some(DefaultItemInstance::new(&SWORD, 123))),
 /// ];
 /// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&SWORD, 2)).is_none());
-/// assert_eq!(quant_in_inventory(&inventory, SWORD.name()), 0);
+/// assert_eq!(quant_in_inventory(&inventory, SWORD.id()), 0);
 /// ```
 /// If the inventory does not have that may items to remove,
 /// this function will return the quantity it was unable to remove.
@@ -267,9 +296,9 @@ where
 ///     DefaultSlot::new(None),
 /// ];
 /// let res = remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 123)).unwrap();
-/// assert_eq!(res.item().name(), TORCH.name());
+/// assert_eq!(res.item().id(), TORCH.id());
 /// assert_eq!(res.quant(), 23);
-/// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 0);
+/// assert_eq!(quant_in_inventory(&inventory, TORCH.id()), 0);
 /// ```
 /// Guarantees that items not requested to be removed will remain untouched.
 /// ```
@@ -283,18 +312,29 @@ where
 ///     DefaultSlot::new(None),
 /// ];
 /// assert!(remove_from_inventory(&mut inventory, DefaultItemInstance::new(&TORCH, 100)).is_none());
-/// assert_eq!(quant_in_inventory(&inventory, TORCH.name()), 23);
+/// assert_eq!(quant_in_inventory(&inventory, TORCH.id()), 23);
 /// ```
-pub fn remove_from_inventory<'a, II, S>(inventory: &mut Vec<S>, other: II) -> Option<II>
-where
-    II: ItemInstance<'a> + Copy + 'a,
-    S: Slot<'a, II>,
-{
-    fn try_remove<'a, II, S>(current: u16, slot: &mut S, other: &II) -> u16
-    where
-        II: ItemInstance<'a> + Copy + 'a,
-        S: Slot<'a, II>,
-    {
+pub fn remove_from_inventory<
+    'a,
+    Id: Eq,
+    I: Item<Id = Id> + 'a,
+    II: ItemInstance<'a, I> + Clone,
+    S: Slot<'a, I, II>,
+>(
+    inventory: &mut Vec<S>,
+    other: II,
+) -> Option<II> {
+    fn try_remove<
+        'a,
+        Id: Eq,
+        I: Item<Id = Id> + 'a,
+        II: ItemInstance<'a, I> + Clone,
+        S: Slot<'a, I, II>,
+    >(
+        current: u16,
+        slot: &mut S,
+        other: &II,
+    ) -> u16 {
         let s = match slot.item_instance() {
             None => return current,
             Some(s) => s,
@@ -302,7 +342,7 @@ where
         if current == 0 {
             return 0;
         }
-        if s.item().name() != other.item().name() {
+        if s.item().id() != other.item().id() {
             return current;
         }
         if !s.item().stackable() {

@@ -43,10 +43,10 @@ let mut inventory = vec![
     DefaultSlot::new(CHEESE_INST)
 ];
 add_to_inventory(&mut inventory, SWORD_INST.unwrap());
-assert_eq!(inventory[0].item_instance().unwrap().item().name(), CHEESE.name());
+assert_eq!(inventory[0].item_instance().unwrap().item().id(), CHEESE.id());
 assert_eq!(inventory[0].item_instance().unwrap().quant(), CHEESE_INST.unwrap().quant());
-assert_eq!(inventory[1].item_instance().unwrap().item().name(), SWORD.name());
+assert_eq!(inventory[1].item_instance().unwrap().item().id(), SWORD.id());
 assert!(inventory[2].item_instance().is_none());
-assert_eq!(inventory[3].item_instance().unwrap().item().name(), CHEESE.name());
+assert_eq!(inventory[3].item_instance().unwrap().item().id(), CHEESE.id());
 assert_eq!(inventory[3].item_instance().unwrap().quant(), CHEESE_INST.unwrap().quant());
 ```

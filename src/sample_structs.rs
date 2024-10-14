@@ -9,13 +9,14 @@ use crate::traits::{Item, ItemInstance, Slot};
 ///
 /// As long as your implementation satisfies the trait bounds it does not matter what immutable
 /// item data you put in here.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DefaultItem<'a> {
     pub name: &'a str,
     pub max_quantity: u16,
 }
 
 impl<'a> Item for DefaultItem<'a> {
+    type Id = &'a str;
     fn stackable(&self) -> bool {
         self.max_quantity > 1
     }
@@ -24,7 +25,7 @@ impl<'a> Item for DefaultItem<'a> {
         self.max_quantity
     }
 
-    fn name(&self) -> &str {
+    fn id(&self) -> &'a str {
         self.name
     }
 }
@@ -35,26 +36,23 @@ impl<'a> Item for DefaultItem<'a> {
 ///
 /// As long as your implementation satisfies the trait bounds it does not matter what instanced
 /// item data you put in here.
-#[derive(Debug, Clone, Copy)]
-pub struct DefaultItemInstance<'a> {
-    pub item: &'a dyn Item,
+#[derive(Debug, Clone)]
+pub struct DefaultItemInstance<'a, I: Item> {
+    pub item: &'a I,
     pub quantity: u16,
 }
 
-impl<'a> ItemInstance<'a> for DefaultItemInstance<'a> {
+impl<'a, I: Item> ItemInstance<'a, I> for DefaultItemInstance<'a, I> {
     fn quant(&self) -> u16 {
         self.quantity
     }
 
-    fn item(&self) -> &'a dyn Item {
+    fn item(&self) -> &'a I {
         self.item
     }
 
-    fn new(item: &'a dyn Item, quantity: u16) -> Self {
-        DefaultItemInstance {
-            item: item,
-            quantity: quantity,
-        }
+    fn new(item: &'a I, quantity: u16) -> Self {
+        DefaultItemInstance { item, quantity }
     }
 }
 
@@ -67,19 +65,13 @@ impl<'a> ItemInstance<'a> for DefaultItemInstance<'a> {
 ///
 /// The main thing you probably want to change other than that is the transfer method.
 /// some methods like `half_stack_split` and `combine_stack` would be pretty useful.
-pub struct DefaultSlot<'a, II>
-where
-    II: ItemInstance<'a>,
-{
+pub struct DefaultSlot<'a, I: Item, II: ItemInstance<'a, I>> {
     pub item_instance: Option<II>,
     pub modified: bool,
-    pub phantom: PhantomData<&'a II>,
+    pub phantom: PhantomData<&'a I>,
 }
 
-impl<'a, II> Debug for DefaultSlot<'a, II>
-where
-    II: ItemInstance<'a> + Debug,
-{
+impl<'a, I: Item, II: ItemInstance<'a, I> + Debug> Debug for DefaultSlot<'a, I, II> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BasicSlot")
             .field("item_instance", &self.item_instance)
@@ -88,17 +80,16 @@ where
     }
 }
 
-impl<'a, II> Slot<'a, II> for DefaultSlot<'a, II>
-where
-    II: ItemInstance<'a> + Sized + Copy,
+impl<'a, I: Item, II: ItemInstance<'a, I> + Sized + Clone> Slot<'a, I, II>
+    for DefaultSlot<'a, I, II>
 {
     fn item_instance(&self) -> Option<II> {
-        self.item_instance
+        self.item_instance.clone()
     }
 
     fn set_item_instance(&mut self, item_instance: &Option<II>) {
         self.set_modified(true);
-        self.item_instance = *item_instance
+        self.item_instance = item_instance.clone()
     }
 
     fn modified(&mut self) -> bool {
@@ -111,7 +102,7 @@ where
 
     fn new(item_instance: Option<II>) -> Self {
         DefaultSlot {
-            item_instance: item_instance,
+            item_instance,
             modified: false,
             phantom: PhantomData,
         }
