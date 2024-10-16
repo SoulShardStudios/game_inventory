@@ -5,7 +5,7 @@ use crate::slot_management::swap;
 ///
 /// Static item data are things like the items name, the items base damage. Data
 /// about the item that does not change item stack to item stack should be stored here.
-pub trait Item: std::fmt::Debug {
+pub trait Item {
     type Id: Eq;
     /// Whether the item can be put into stacks.
     /// A sword you may only want to have one of,
