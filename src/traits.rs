@@ -1,5 +1,7 @@
 //! All traits that are needed to interface with the inventory system.
 
+use std::sync::Arc;
+
 use crate::slot_management::swap;
 /// Trait for defining what static item data is necessary for the inventory system.
 ///
@@ -21,13 +23,13 @@ pub trait Item {
 ///
 /// If you have two stacks of items, the quantity of items
 /// in each stack is stored separately. This is where you store that data.
-pub trait ItemInstance<'a, I: Item> {
+pub trait ItemInstance<I: Item> {
     /// The quantity of items in this instance.
     fn quant(&self) -> u16;
     /// The item stored by this instance.
-    fn item(&self) -> &'a I;
+    fn item(&self) -> Arc<I>;
     /// Creates a new item instance.
-    fn new(item: &'a I, quantity: u16) -> Self;
+    fn new(item: Arc<I>, quantity: u16) -> Self;
 }
 /// Trait for defining an item slot.
 ///
@@ -35,7 +37,7 @@ pub trait ItemInstance<'a, I: Item> {
 /// by which the player is able to modify the stored item instance, for example,
 /// restricting it to only be items where the item type is `ItemType::Armor`, this is the place to
 /// define that behavior for.
-pub trait Slot<'a, I: Item, II: ItemInstance<'a, I> + Sized> {
+pub trait Slot<I: Item, II: ItemInstance<I>> {
     /// Get the item instance stored by this slot.
     fn item_instance(&self) -> Option<II>;
     /// Set the item instance stored by this slot.

@@ -13,9 +13,9 @@ fn swap() {
     let mut slot = <DefaultSlot<
         'static,
         DefaultItem<'static>,
-        DefaultItemInstance<'static, DefaultItem<'static>>,
+        DefaultItemInstance<DefaultItem<'static>>,
     >>::new(None);
     assert_eq!(slot.modified, false);
-    slot.transfer(TORCH_INST, "");
+    slot.transfer(TORCH_INST.clone(), "");
     assert_eq!(slot.modified, true);
 }

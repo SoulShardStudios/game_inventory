@@ -31,7 +31,7 @@ pub type Items<II> = (Option<II>, Option<II>);
 pub type ItemsRes<II> = Result<Items<II>, (Box<dyn std::error::Error>, Items<II>)>;
 
 /// Returns the inverse of the two inputs, specifically `(items.1, items.0)`.
-pub fn swap<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
+pub fn swap<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<I>>(
     items: (Option<II>, Option<II>),
 ) -> (Option<II>, Option<II>) {
     (items.1, items.0)
@@ -43,13 +43,13 @@ pub fn swap<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
 /// # use game_inventory::samples::TORCH_INST;
 /// # use game_inventory::helpers::{combine_stack, swap_if_err};
 /// # use game_inventory::traits::{Item, ItemInstance};
-/// let items = (TORCH_INST, None);
+/// let items = (TORCH_INST.clone(), None);
 /// let unwrapped = swap_if_err(combine_stack(items.clone()));
 /// assert_eq!(items.1.is_none(), unwrapped.0.is_none());
 /// assert_eq!(items.0.as_ref().unwrap().item().id(), unwrapped.1.as_ref().unwrap().item().id());
 /// assert_eq!(items.0.as_ref().unwrap().quant(), unwrapped.1.unwrap().quant());
 /// ```
-pub fn swap_if_err<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
+pub fn swap_if_err<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<I>>(
     items: ItemsRes<II>,
 ) -> Items<II> {
     match items {
@@ -64,13 +64,13 @@ pub fn swap_if_err<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
 /// # use game_inventory::samples::TORCH_INST;
 /// # use game_inventory::helpers::{combine_stack, unwrap_items_res};
 /// # use game_inventory::traits::{Item, ItemInstance};
-/// let items = (TORCH_INST, None);
+/// let items = (TORCH_INST.clone(), None);
 /// let unwrapped = unwrap_items_res(combine_stack(items.clone()));
 /// assert_eq!(items.0.as_ref().unwrap().item().id(), unwrapped.0.as_ref().unwrap().item().id());
 /// assert_eq!(items.0.unwrap().quant(), unwrapped.0.unwrap().quant());
 /// assert_eq!(items.1.is_none(), unwrapped.1.is_none());
 /// ```
-pub fn unwrap_items_res<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
+pub fn unwrap_items_res<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<I>>(
     items: ItemsRes<II>,
 ) -> Items<II> {
     match items {
@@ -81,15 +81,16 @@ pub fn unwrap_items_res<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
 /// Combines two stacks of items. Tries to put `items.0` into `items.1`.
 ///
 /// ```
-/// # use game_inventory::samples::{DefaultItemInstance, TORCH, TORCH_INST};
+/// # use game_inventory::samples::{DefaultItemInstance,DefaultItem, TORCH, TORCH_INST};
 /// # use game_inventory::traits::{Item, ItemInstance};
 /// # use game_inventory::helpers::combine_stack;
+/// # use std::sync::Arc;
 /// let items = (
-///     Some(DefaultItemInstance {
-///         item: &TORCH,
+///     Some(DefaultItemInstance::<DefaultItem> {
+///         item: Arc::new(TORCH.clone()),
 ///         quantity: 90,
 ///     }),
-///     TORCH_INST,
+///     TORCH_INST.clone(),
 /// );
 /// let res = combine_stack(items).ok().unwrap();
 /// assert_eq!(res.0.clone().unwrap().item().id(),TORCH.id());
@@ -102,19 +103,19 @@ pub fn unwrap_items_res<'a, Id: Eq, I: Item<Id = Id>, II: ItemInstance<'a, I>>(
 /// # use game_inventory::samples::{DefaultItemInstance, DefaultItem, TORCH_INST, SWORD_INST, JUNK_INST, TORCH_FULL_STACK_INST};
 /// # use game_inventory::slot_management::combine_stack;
 /// // Either item is None.
-/// assert!(combine_stack::<'static, &'static str, DefaultItem<'static>, DefaultItemInstance<'static, DefaultItem<'static>>>((None, None,)).is_err());
-/// assert!(combine_stack((TORCH_INST, None,)).is_err());
-/// assert!(combine_stack((None, TORCH_INST,)).is_err());
-/// assert!(combine_stack((None, SWORD_INST)).is_err());
-/// assert!(combine_stack((SWORD_INST, None)).is_err());
+/// assert!(combine_stack::<&'static str, DefaultItem<'static>, DefaultItemInstance<DefaultItem<'static>>>((None, None,)).is_err());
+/// assert!(combine_stack((TORCH_INST.clone(), None,)).is_err());
+/// assert!(combine_stack((None, TORCH_INST.clone(),)).is_err());
+/// assert!(combine_stack((None, SWORD_INST.clone())).is_err());
+/// assert!(combine_stack((SWORD_INST.clone(), None)).is_err());
 /// // The items are not the same.
-/// assert!(combine_stack((TORCH_INST, JUNK_INST)).is_err());
-/// assert!(combine_stack((JUNK_INST, TORCH_INST)).is_err());
+/// assert!(combine_stack((TORCH_INST.clone(), JUNK_INST.clone())).is_err());
+/// assert!(combine_stack((JUNK_INST.clone(), TORCH_INST.clone())).is_err());
 /// // One of the items has a full stack.
-/// assert!(combine_stack((TORCH_FULL_STACK_INST, TORCH_INST)).is_err());
-/// assert!(combine_stack((TORCH_INST, TORCH_FULL_STACK_INST)).is_err());
+/// assert!(combine_stack((TORCH_FULL_STACK_INST.clone(), TORCH_INST.clone())).is_err());
+/// assert!(combine_stack((TORCH_INST.clone(), TORCH_FULL_STACK_INST.clone())).is_err());
 /// ```
-pub fn combine_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+pub fn combine_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<I>>(
     items: Items<II>,
 ) -> ItemsRes<II> {
     let (c, o) = match &items {
@@ -168,13 +169,14 @@ pub fn combine_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>
 /// # use game_inventory::samples::{TORCH, DefaultItemInstance};
 /// # use game_inventory::helpers::half_stack_split;
 /// # use game_inventory::traits::{Item, ItemInstance};
+/// # use std::sync::Arc;
 /// let res = half_stack_split((
 /// Some(DefaultItemInstance {
-///     item: &TORCH,
+///     item: Arc::new(TORCH.clone()),
 ///     quantity: 11,
 /// }),
 /// Some(DefaultItemInstance {
-///     item: &TORCH,
+///     item: Arc::new(TORCH.clone()),
 ///     quantity: 3,
 /// }),
 /// )).ok().unwrap();
@@ -188,15 +190,15 @@ pub fn combine_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>
 /// # use game_inventory::samples::{TORCH_INST, SWORD_INST, JUNK_INST};
 /// # use game_inventory::helpers::half_stack_split;
 /// // items.0 is None
-/// assert!(half_stack_split((None,TORCH_INST)).is_err());
-/// assert!(half_stack_split((None, SWORD_INST)).is_err());
+/// assert!(half_stack_split((None, TORCH_INST.clone())).is_err());
+/// assert!(half_stack_split((None, SWORD_INST.clone())).is_err());
 /// // items.0 is unstackable
-/// assert!(half_stack_split((SWORD_INST, None)).is_err());
+/// assert!(half_stack_split((SWORD_INST.clone(), None)).is_err());
 /// // The items are not the same.
-/// assert!(half_stack_split((TORCH_INST, JUNK_INST)).is_err());
-/// assert!(half_stack_split((JUNK_INST, TORCH_INST)).is_err());
+/// assert!(half_stack_split((TORCH_INST.clone(), JUNK_INST.clone())).is_err());
+/// assert!(half_stack_split((JUNK_INST.clone(), TORCH_INST.clone())).is_err());
 /// ```
-pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<I>>(
     items: Items<II>,
 ) -> ItemsRes<II> {
     let c = match &items.0 {
@@ -254,15 +256,16 @@ pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, 
 /// Removes a single item from a stack. Tries to take a single item from `items.0` and put it into `items.1`.
 ///
 /// ```
-/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultItemInstance, DefaultItem, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{ItemInstance, Item};
+/// # use std::sync::Arc;
 /// let res = remove_from_stack((
-///     Some(DefaultItemInstance {
-///         item: &TORCH,
+///     Some(DefaultItemInstance::<DefaultItem> {
+///         item: Arc::new(TORCH.clone()),
 ///         quantity: 3,
 ///     }),
-///     TORCH_INST,
+///     TORCH_INST.clone(),
 /// )).ok().unwrap();
 /// assert!(res.0.as_ref().unwrap().item().id() == TORCH.id());
 /// assert!(res.0.as_ref().unwrap().quant() == 2);
@@ -271,16 +274,17 @@ pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, 
 /// ```
 /// Also accounts for the edge case of `items.0` having a quantity of `1`:
 /// ```
-/// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
+/// # use game_inventory::samples::{DefaultItemInstance,DefaultItem, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{ItemInstance, Item};
+/// # use std::sync::Arc;
 /// let res = remove_from_stack((
-///     Some(DefaultItemInstance {
-///         item: &TORCH,
+///     Some(DefaultItemInstance::<DefaultItem> {
+///         item: Arc::new(TORCH.clone()),
 ///         quantity: 1,
 ///     }),
-///     Some(DefaultItemInstance {
-///         item: &TORCH,
+///     Some(DefaultItemInstance::<DefaultItem> {
+///         item: Arc::new(TORCH.clone()),
 ///         quantity: 20,
 ///     }),
 /// )).ok().unwrap();
@@ -293,9 +297,10 @@ pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, 
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH_INST, TORCH};
 /// # use game_inventory::helpers::remove_from_stack;
 /// # use game_inventory::traits::{ItemInstance, Item};
+/// # use std::sync::Arc;
 /// let res = remove_from_stack((
 ///     Some(DefaultItemInstance {
-///         item: &TORCH,
+///         item: Arc::new(TORCH.clone()),
 ///         quantity: 3,
 ///     }),
 ///     None,
@@ -310,15 +315,15 @@ pub fn half_stack_split<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, 
 /// # use game_inventory::samples::{DefaultItemInstance, TORCH, TORCH_INST, TORCH_FULL_STACK_INST, SWORD_INST, JUNK_INST,};
 /// # use game_inventory::helpers::remove_from_stack;
 /// // items.0 is None.
-/// assert!(remove_from_stack((None, TORCH_FULL_STACK_INST)).is_err());
+/// assert!(remove_from_stack((None, TORCH_FULL_STACK_INST.clone())).is_err());
 /// // Any of the items are unstackable.
-/// assert!(remove_from_stack((None, SWORD_INST)).is_err());
-/// assert!(remove_from_stack((SWORD_INST, None)).is_err());
+/// assert!(remove_from_stack((None, SWORD_INST.clone())).is_err());
+/// assert!(remove_from_stack((SWORD_INST.clone(), None)).is_err());
 /// // The items are not the same.
-/// assert!(remove_from_stack((TORCH_INST, JUNK_INST)).is_err());
-/// assert!(remove_from_stack((JUNK_INST, TORCH_INST)).is_err());
+/// assert!(remove_from_stack((TORCH_INST.clone(), JUNK_INST.clone())).is_err());
+/// assert!(remove_from_stack((JUNK_INST.clone(), TORCH_INST.clone())).is_err());
 /// ```
-pub fn remove_from_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<'a, I>>(
+pub fn remove_from_stack<'a, Id: Eq, I: Item<Id = Id> + 'a, II: ItemInstance<I>>(
     items: Items<II>,
 ) -> ItemsRes<II> {
     let c = match &items.0 {
