@@ -1,5 +1,5 @@
 //! A collection of sample structs used for testing the system, and showing how it can be used.
-use std::{fmt::Debug, marker::PhantomData};
+use std::{fmt::Debug, marker::PhantomData, sync::Arc};
 
 use crate::traits::{Item, ItemInstance, Slot};
 
@@ -37,21 +37,21 @@ impl<'a> Item for DefaultItem<'a> {
 /// As long as your implementation satisfies the trait bounds it does not matter what instanced
 /// item data you put in here.
 #[derive(Debug, Clone)]
-pub struct DefaultItemInstance<'a, I: Item> {
-    pub item: &'a I,
+pub struct DefaultItemInstance<I: Item> {
+    pub item: Arc<I>,
     pub quantity: u16,
 }
 
-impl<'a, I: Item> ItemInstance<'a, I> for DefaultItemInstance<'a, I> {
+impl<'a, I: Item> ItemInstance<I> for DefaultItemInstance<I> {
     fn quant(&self) -> u16 {
         self.quantity
     }
 
-    fn item(&self) -> &'a I {
-        self.item
+    fn item(&self) -> Arc<I> {
+        self.item.clone()
     }
 
-    fn new(item: &'a I, quantity: u16) -> Self {
+    fn new(item: Arc<I>, quantity: u16) -> Self {
         DefaultItemInstance { item, quantity }
     }
 }
@@ -65,13 +65,13 @@ impl<'a, I: Item> ItemInstance<'a, I> for DefaultItemInstance<'a, I> {
 ///
 /// The main thing you probably want to change other than that is the transfer method.
 /// some methods like `half_stack_split` and `combine_stack` would be pretty useful.
-pub struct DefaultSlot<'a, I: Item, II: ItemInstance<'a, I>> {
+pub struct DefaultSlot<'a, I: Item, II: ItemInstance<I>> {
     pub item_instance: Option<II>,
     pub modified: bool,
     pub phantom: PhantomData<&'a I>,
 }
 
-impl<'a, I: Item, II: ItemInstance<'a, I> + Debug> Debug for DefaultSlot<'a, I, II> {
+impl<'a, I: Item, II: ItemInstance<I> + Debug> Debug for DefaultSlot<'a, I, II> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BasicSlot")
             .field("item_instance", &self.item_instance)
@@ -80,9 +80,7 @@ impl<'a, I: Item, II: ItemInstance<'a, I> + Debug> Debug for DefaultSlot<'a, I, 
     }
 }
 
-impl<'a, I: Item, II: ItemInstance<'a, I> + Sized + Clone> Slot<'a, I, II>
-    for DefaultSlot<'a, I, II>
-{
+impl<'a, I: Item, II: ItemInstance<I> + Sized + Clone> Slot<I, II> for DefaultSlot<'a, I, II> {
     fn item_instance(&self) -> Option<II> {
         self.item_instance.clone()
     }

@@ -27,6 +27,7 @@
 //! # use game_inventory::traits::{Item, ItemInstance, Slot};
 //! # use game_inventory::sample_structs::{DefaultItemInstance, DefaultSlot};
 //! # use game_inventory::helpers::add_to_inventory;
+//! # use std::sync::Arc;
 //! // Define your item data however you like:
 //! #[derive(Debug, Clone)]
 //! pub struct DefaultItem<'a> {
@@ -53,23 +54,23 @@
 //!     }
 //! }
 //! // start using it in combination with everything else!
-//! const CHEESE: DefaultItem = DefaultItem{name:"Cheese", max_quantity:100, image:None, item_type:"Food"};
-//! const CHEESE_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance{item:&CHEESE, quantity:32});
-//! const SWORD: DefaultItem = DefaultItem{name:"Sword", max_quantity:0, image:None, item_type:"Weapon"};
-//! const SWORD_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance{item:&SWORD, quantity:0});
+//! let CHEESE: DefaultItem = DefaultItem{name:"Cheese", max_quantity:100, image:None, item_type:"Food"};
+//! let CHEESE_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance{item:Arc::new(CHEESE.clone()), quantity:32});
+//! let SWORD: DefaultItem = DefaultItem{name:"Sword", max_quantity:0, image:None, item_type:"Weapon"};
+//! let SWORD_INST: Option<DefaultItemInstance<DefaultItem>> = Some(DefaultItemInstance{item:Arc::new(SWORD.clone()), quantity:0});
 //! let mut inventory = vec![
-//!     DefaultSlot::new(CHEESE_INST),
+//!     DefaultSlot::new(CHEESE_INST.clone()),
 //!     DefaultSlot::new(None),
 //!     DefaultSlot::new(None),
-//!     DefaultSlot::new(CHEESE_INST)
+//!     DefaultSlot::new(CHEESE_INST.clone())
 //! ];
 //! add_to_inventory(&mut inventory, SWORD_INST.unwrap());
 //! assert_eq!(inventory[0].item_instance.as_ref().unwrap().item().id(), CHEESE.id());
-//! assert_eq!(inventory[0].item_instance.as_ref().unwrap().quant(), CHEESE_INST.unwrap().quant());
+//! assert_eq!(inventory[0].item_instance.as_ref().unwrap().quant(), CHEESE_INST.as_ref().unwrap().quant());
 //! assert_eq!(inventory[1].item_instance.as_ref().unwrap().item().id(), SWORD.id());
 //! assert!(inventory[2].item_instance.is_none());
 //! assert_eq!(inventory[3].item_instance.as_ref().unwrap().item().id(), CHEESE.id());
-//! assert_eq!(inventory[3].item_instance.as_ref().unwrap().quant(), CHEESE_INST.unwrap().quant());
+//! assert_eq!(inventory[3].item_instance.as_ref().unwrap().quant(), CHEESE_INST.as_ref().unwrap().quant());
 //! ```
 
 pub mod inventory_management;

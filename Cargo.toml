@@ -10,3 +10,4 @@ repository = "https://github.com/SoulShardStudios/game_inventory"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lazy_static = "1.5.0"
